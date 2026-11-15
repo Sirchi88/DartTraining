@@ -4,7 +4,7 @@ import { sound } from '../sound.js';
 import { store, uid } from '../store.js';
 import { makeRng } from '../rng.js';
 import { DIFFS, diffOptions, fmtSec } from '../learn/common.js';
-import { runFinish, runCaller, runQuiz } from '../learn/games.js';
+import { runFinish, runCaller, runQuiz, THROWERS } from '../learn/games.js';
 import { loadQuiz } from '../learn/quizdata.js';
 import { checkBadges } from '../badges.js';
 
@@ -19,7 +19,7 @@ const toParams = (game, c) => {
   const p = { spiel: game, runden: c.rounds };
   if (game !== 'quiz') p.stufe = c.diff;
   if (game === 'finish') { p.von = c.min; p.bis = c.max; }
-  if (game === 'caller') p.takt = c.interval;
+  if (game === 'caller') { p.takt = c.interval; p.werfer = c.thrower; }
   if (game === 'quiz' && c.cats?.length) p.kat = c.cats.join(',');
   return p;
 };
@@ -30,6 +30,7 @@ const fromParams = (p, s) => ({
     rounds: Math.min(50, Math.max(1, Number(p.get('runden')) || s.learnRounds)),
     min: Number(p.get('von')) || s.finishMin, max: Number(p.get('bis')) || s.finishMax,
     interval: Number(p.get('takt')) || s.callerMs,
+    thrower: THROWERS[p.get('werfer')] ? p.get('werfer') : s.callerThrower,
     cats: p.get('kat') ? p.get('kat').split(',') : [],
     input: s.finishInput,
   },
@@ -67,7 +68,7 @@ export function learnFlow(app) {
   // ---------- Einstellungen ----------
   async function setup(game, preset = null) {
     const st = s();
-    const c = preset || { diff: st.learnDiff, rounds: game === 'quiz' ? st.quizCount : st.learnRounds, min: st.finishMin, max: st.finishMax, interval: st.callerMs, input: st.finishInput, cats: [...st.quizCats] };
+    const c = preset || { diff: st.learnDiff, rounds: game === 'quiz' ? st.quizCount : st.learnRounds, min: st.finishMin, max: st.finishMax, interval: st.callerMs, thrower: st.callerThrower, input: st.finishInput, cats: [...st.quizCats] };
     const g = LEARN_GAMES[game];
     const fields = [];
     if (g.timed) fields.push(h('div', { class: 'field col' }, h('div', { class: 'f-label' }, 'Schwierigkeit', h('small', {}, 'Zeit pro Aufgabe')), segmented(diffOptions(), c.diff, v => { c.diff = v; })));
@@ -75,6 +76,11 @@ export function learnFlow(app) {
     if (game === 'finish') {
       fields.push(h('div', { class: 'field col' }, h('div', { class: 'f-label' }, 'Zahlenbereich'), rangeSlider({ min: 2, max: 170, from: c.min, to: c.max, onChange: (a, b) => { c.min = a; c.max = b; } })));
       fields.push(h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Eingabe'), segmented([['board', 'Dartboard'], ['keys', 'Feld-Tastatur']], c.input, v => { c.input = v; })));
+    }
+    if (game === 'caller') {
+      const tDesc = h('small', {}, THROWERS[c.thrower].desc);
+      fields.push(h('div', { class: 'field col' }, h('div', { class: 'f-label' }, 'Werfer', tDesc),
+        segmented(Object.entries(THROWERS).map(([k, t]) => [k, t.label]), c.thrower, v => { c.thrower = v; tDesc.textContent = THROWERS[v].desc; })));
     }
     if (game === 'caller') fields.push(h('div', { class: 'field col' }, h('div', { class: 'f-label' }, 'Abstand der Darts'),
       segmented([[300, '0,3s'], [600, '0,6s'], [1000, '1s'], [1500, '1,5s'], [2000, '2s'], [3000, '3s']], c.interval, v => { c.interval = v; })));
@@ -127,7 +133,7 @@ export function learnFlow(app) {
     const codeIn = h('input', { class: 'text-input', inputmode: 'numeric', maxlength: 4, placeholder: '4-stelliger Code' });
     let game = 'finish';
     const st = s();
-    const c = { diff: st.learnDiff, rounds: st.learnRounds, min: st.finishMin, max: st.finishMax, interval: st.callerMs, input: st.finishInput, cats: [] };
+    const c = { diff: st.learnDiff, rounds: st.learnRounds, min: st.finishMin, max: st.finishMax, interval: st.callerMs, thrower: st.callerThrower, input: st.finishInput, cats: [] };
     app.show(h('section', { class: 'screen' },
       h('div', { class: 'topbar' }, iconBtn('back', 'Zurück', hub), h('h2', {}, '1vs1 beitreten', h('span', { class: 'sub' }, 'Code und gleiche Einstellungen wie dein Gegner'))),
       h('div', { class: 'scroll stack' },
@@ -135,6 +141,7 @@ export function learnFlow(app) {
           h('div', { class: 'label' }, 'Code'), codeIn,
           h('div', { class: 'label' }, 'Spiel'), segmented(Object.entries(LEARN_GAMES).map(([k, g]) => [k, g.name]), game, v => { game = v; }),
           h('div', { class: 'label' }, 'Schwierigkeit'), segmented(diffOptions(), c.diff, v => { c.diff = v; }),
+          h('div', { class: 'label' }, 'Werfer (nur Caller)'), segmented(Object.entries(THROWERS).map(([k, t]) => [k, t.label]), c.thrower, v => { c.thrower = v; }),
           h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Runden'), stepper(c.rounds, { min: 1, max: 50 }, v => { c.rounds = v; })),
           h('p', { class: 'muted small-text' }, 'Tipp: Mit dem Einladungslink wird alles automatisch übernommen.')),
         h('div', { class: 'card' }, h('div', { class: 'label', style: { marginBottom: '8px' } }, 'Dein Name'), nameField())),
@@ -155,7 +162,7 @@ export function learnFlow(app) {
     const seed = duel ? seedKey(duel.code, game, cfg) : `${Date.now()}-${Math.random()}`;
     const exit = async () => { if (await confirmDialog({ title: 'Spiel abbrechen?', text: 'Diese Runde wird nicht gewertet.', ok: 'Abbrechen', cancel: 'Weiterspielen', danger: true })) { stopGame(); setup(game, cfg); } };
     app.show(h('section', { class: 'screen' },
-      h('div', { class: 'topbar' }, h('h2', {}, g.name, h('span', { class: 'sub' }, `${duel ? `⚔️ Duell ${duel.code} · ` : ''}${g.timed ? `${DIFFS[cfg.diff].label} · ` : ''}${cfg.rounds} Runden`)), iconBtn('close', 'Beenden', exit)),
+      h('div', { class: 'topbar' }, h('h2', {}, g.name, h('span', { class: 'sub' }, `${duel ? `⚔️ Duell ${duel.code} · ` : ''}${g.timed ? `${DIFFS[cfg.diff].label} · ` : ''}${game === 'caller' ? `Werfer ${THROWERS[cfg.thrower].label} · ` : ''}${cfg.rounds} Runden`)), iconBtn('close', 'Beenden', exit)),
       root),
     { back: exit });
     g.run({ root, cfg, rng: makeRng(seed), setCleanup: fn => { cleanup = fn; }, onDone: res => { stopGame(); result(game, cfg, duel, res); } });

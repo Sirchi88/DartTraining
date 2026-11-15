@@ -1,9 +1,11 @@
 // Interaktives Dartboard für „Darts lernen“: antippbare Segmente, Lupe (Touch), Hover-Label (PC), fliegende Darts.
 import { h } from '../ui.js';
-import { createBoard, ORDER } from '../board.js';
+import { createBoard, ORDER, WIDE } from '../board.js';
 import { dartLabel } from '../pads.js';
 
-const R = { be: 3.7, bull: 9.4, tIn: 58.2, tOut: 62.9, dIn: 95.3, dOut: 100 };
+const R = WIDE;
+// Toleranz: knapp neben Triple/Double zählt noch (in Board-Einheiten)
+const TOL = 2.2;
 const NS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
 const polar = (r, deg) => { const a = (deg - 90) * Math.PI / 180; return [r * Math.cos(a), r * Math.sin(a)]; };
@@ -13,13 +15,12 @@ export function segmentAt(x, y) {
   const r = Math.hypot(x, y);
   if (r <= R.be) return '50';
   if (r <= R.bull) return '25';
-  if (r > R.dOut) return null;
+  if (r > R.dOut + 6) return null;
   let deg = (Math.atan2(y, x) * 180 / Math.PI + 90 + 360) % 360;
   const n = ORDER[Math.floor(((deg + 9) % 360) / 18)];
-  if (r <= R.tIn) return `S${n}`;
-  if (r <= R.tOut) return `T${n}`;
-  if (r <= R.dIn) return `S${n}`;
-  return `D${n}`;
+  if (r >= R.dIn - TOL) return `D${n}`;
+  if (r >= R.tIn - TOL && r <= R.tOut + TOL) return `T${n}`;
+  return `S${n}`;
 }
 
 // Zufälliger Punkt im Segment (rng = Funktion 0..1)
@@ -38,7 +39,7 @@ export function pointIn(key, rng = Math.random) {
 }
 
 export function interactiveBoard({ onPick = null } = {}) {
-  const board = createBoard({ className: 'iboard' });
+  const board = createBoard({ className: 'iboard', wide: true });
   const svg = board.el;
   const label = h('div', { class: 'ib-label' });
   const loupeSvg = svg.cloneNode(true);

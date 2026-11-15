@@ -4,7 +4,9 @@
 const NS = 'http://www.w3.org/2000/svg';
 export const ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
 // Radien relativ zu Doppel-außen = 100 (offizielle Maße)
-const R = { be: 3.7, bull: 9.4, tIn: 58.2, tOut: 62.9, dIn: 95.3, dOut: 100, num: 112 };
+const STD = { be: 3.7, bull: 9.4, tIn: 58.2, tOut: 62.9, dIn: 95.3, dOut: 100, num: 112 };
+// Lern-Board: Triple- und Double-Ring deutlich breiter (leichter antippbar)
+export const WIDE = { be: 5.2, bull: 12.5, tIn: 52, tOut: 63.5, dIn: 86, dOut: 100, num: 112 };
 
 const el = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; };
 const pt = (r, deg) => { const a = (deg - 90) * Math.PI / 180; return [r * Math.cos(a), r * Math.sin(a)]; };
@@ -14,7 +16,8 @@ function sector(r1, r2, a1, a2) {
   return `M${x1.toFixed(2)},${y1.toFixed(2)} A${r2},${r2} 0 0 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${x3.toFixed(2)},${y3.toFixed(2)} A${r1},${r1} 0 0 0 ${x4.toFixed(2)},${y4.toFixed(2)}Z`;
 }
 
-export function createBoard({ numbers = true, className = '' } = {}) {
+export function createBoard({ numbers = true, className = '', wide = false } = {}) {
+  const R = wide ? WIDE : STD;
   const svg = el('svg', { viewBox: '-122 -122 244 244', class: `board ${className}`, role: 'img', 'aria-label': 'Dartscheibe' });
   svg.append(el('circle', { r: 121, class: 'b-rim' }));
   const parts = {};

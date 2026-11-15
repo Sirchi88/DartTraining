@@ -94,18 +94,35 @@ export function runFinish({ root, cfg, rng, onDone, setCleanup }) {
 }
 
 // ======================= Ich werde Caller =======================
-function callerDart(rng) {
+// Werfer-Typen: amateur = wild übers Board, gut = Scoring-Bereich mit Ausreißern (7, 1, 5 …), leek = immer straight T20/T19
+export const THROWERS = {
+  amateur: { label: 'Amateur', desc: 'Komplett verrückte Würfe – überall auf dem Board, auch mal daneben.' },
+  gut: { label: 'Gut', desc: 'Standard-Würfe in 20 und 19 – aber oft auch mal 1, 5, 7 oder 3.' },
+  leek: { label: 'The Leek', desc: 'Einfachster Modus: wirft immer straight gute Zahlen (20er und 19er).' },
+};
+function callerDart(rng, level = 'gut') {
   const r = rng();
-  const w = (a, b, c) => { const x = rng(); return x < .6 ? a : x < .8 ? b : c; };
-  if (r < .08) return rng() < .35 ? '50' : '25';
-  if (r < .1) return 'MISS';
-  const num = r < .55 ? w(20, 1, 5) : r < .85 ? w(19, 7, 3) : 1 + Math.floor(rng() * 20);
-  const q = rng();
-  return q < .72 ? `S${num}` : q < .9 ? `T${num}` : `D${num}`;
+  const ring = (t, d) => { const q = rng(); return q < t ? 'T' : q < t + d ? 'D' : 'S'; };
+  if (level === 'leek') {
+    const num = r < .75 ? 20 : 19;
+    return `${rng() < .55 ? 'T' : 'S'}${num}`;
+  }
+  if (level === 'amateur') {
+    if (r < .12) return 'MISS';
+    if (r < .18) return rng() < .3 ? '50' : '25';
+    const num = r < .4 ? [20, 1, 5][Math.floor(rng() * 3)] : 1 + Math.floor(rng() * 20);
+    return `${ring(.1, .12)}${num}`;
+  }
+  // gut
+  const w = (a, b, c) => { const x = rng(); return x < .5 ? a : x < .75 ? b : c; };
+  if (r < .07) return rng() < .35 ? '50' : '25';
+  if (r < .09) return 'MISS';
+  const num = r < .56 ? w(20, 1, 5) : r < .9 ? w(19, 7, 3) : 1 + Math.floor(rng() * 20);
+  return `${ring(.2, .07)}${num}`;
 }
 
 export function runCaller({ root, cfg, rng, onDone, setCleanup }) {
-  const tasks = Array.from({ length: cfg.rounds }, () => [callerDart(rng), callerDart(rng), callerDart(rng)]);
+  const tasks = Array.from({ length: cfg.rounds }, () => [callerDart(rng, cfg.thrower), callerDart(rng, cfg.thrower), callerDart(rng, cfg.thrower)]);
   const tr = tracker(cfg.rounds);
   const bar = timeBar();
   const ib = interactiveBoard();
@@ -113,7 +130,7 @@ export function runCaller({ root, cfg, rng, onDone, setCleanup }) {
 
   const el = {
     head: h('div', { class: 'lg-head' }), sum: h('div', { class: 'x01-input' }), fb: h('div', { class: 'lg-feedback' }),
-    next: h('button', { class: 'btn primary', 'data-key': 'Enter', onClick: () => next() }, 'Weiter'),
+    next: h('button', { class: 'btn primary small fb-next', 'data-key': 'Enter', onClick: () => next() }, 'Weiter'),
   };
   const pad = numPad({
     onDigit: d => { if (phase !== 'input' || (input + d).length > 3) return; input = (input + d).replace(/^0+(?=\d)/, ''); paint(); },
@@ -122,13 +139,12 @@ export function runCaller({ root, cfg, rng, onDone, setCleanup }) {
   });
   root.replaceChildren(h('div', { class: 'game learn-game' },
     h('div', { class: 'stage lg-stage' }, el.head, bar.el, h('div', { class: 'lg-board-sm' }, ib.el), el.sum, el.fb),
-    h('div', { class: 'controls' }, pad, el.next)));
+    h('div', { class: 'controls' }, pad)));
 
   function paint() {
     el.head.replaceChildren(h('span', {}, `Aufnahme ${i + 1}/${cfg.rounds}`), h('span', { class: 'lg-score' }, `✓ ${tr.correct}`), h('span', {}, tr.streak >= 2 ? `🔥 ${tr.streak}` : ''));
     el.sum.replaceChildren(h('span', { class: 'lbl' }, phase === 'throw' ? 'Darts fliegen …' : 'Summe'), h('span', { class: `val${input ? '' : ' empty'}` }, input || '0'));
     pad.classList.toggle('locked', phase !== 'input');
-    el.next.style.visibility = phase === 'result' ? 'visible' : 'hidden';
   }
   function startTask() {
     phase = 'throw'; input = ''; clearTimeout(autoT);
@@ -153,7 +169,7 @@ export function runCaller({ root, cfg, rng, onDone, setCleanup }) {
     tasks[i].forEach(k => { if (k !== 'MISS') ib.mark(k, 'ib-good'); });
     el.fb.className = `lg-feedback ${ok ? 'ok' : 'bad'}`;
     el.fb.replaceChildren(h('span', {}, ok ? `Richtig! ${fmtSec(ms)} · ` : timeout ? 'Zeit abgelaufen · ' : `Falsch (${input || '–'}) · `),
-      h('b', {}, `${total}`), h('span', {}, ` = ${tasks[i].map(dartLabel).join(' + ')}`));
+      h('b', {}, `${total}`), h('span', {}, ` = ${tasks[i].map(dartLabel).join(' + ')}`), el.next);
     paint();
     if (ok) autoT = setTimeout(next, 1100);
   }

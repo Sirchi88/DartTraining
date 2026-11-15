@@ -51,6 +51,7 @@ export const SETTINGS_SCHEMA = [
   { section: 'Darts lernen', key: 'finishMax', label: 'Finish-Wege: Range bis', type: 'number', min: 2, max: 170, step: 1, default: 170 },
   { section: 'Darts lernen', key: 'finishInput', label: 'Standard-Eingabe', type: 'choice', options: [['board', 'Dartboard'], ['keys', 'Feld-Tastatur']], default: 'board' },
   { section: 'Darts lernen', key: 'callerMs', label: 'Caller: Abstand der Darts', type: 'choice', options: [[300, '0,3s'], [600, '0,6s'], [1000, '1s'], [1500, '1,5s'], [2000, '2s'], [3000, '3s']], default: 1000 },
+  { section: 'Darts lernen', key: 'callerThrower', label: 'Caller: Werfer', type: 'choice', options: [['amateur', 'Amateur'], ['gut', 'Gut'], ['leek', 'The Leek']], default: 'gut' },
   { section: 'Darts lernen', key: 'quizCount', label: 'Quiz: Fragen pro Runde', type: 'number', min: 1, max: 50, step: 1, default: 10 },
 
   { section: '1vs1', key: 'vsChecks', label: 'Random Checkouts: Checks zum Sieg', type: 'number', min: 1, max: 30, step: 1, default: 5 },

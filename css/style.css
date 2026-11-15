@@ -573,7 +573,7 @@ button { cursor: pointer; touch-action: manipulation; user-select: none; -webkit
 .pc .keypad button:not(.ok):not(.del)::after, .pc .num-pad button.digit::after { display: none; }
 
 /* ===== Interaktives Board ===== */
-.ib-wrap { position: relative; width: min(100%, 520px); margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.ib-wrap { position: relative; width: min(100%, 620px); margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; }
 .ib-wrap.pick .board { cursor: crosshair; }
 .ib-wrap .board .ib-hover { fill: var(--leek-light) !important; }
 .ib-wrap .board .ib-picked { animation: pickFlash .45s ease; }
@@ -693,7 +693,8 @@ button { cursor: pointer; touch-action: manipulation; user-select: none; -webkit
 textarea.text-input { min-height: 70px; padding: 10px 14px; font-family: var(--text); font-weight: 400; font-size: 1rem; }
 
 .learn-game .stage.lg-stage { flex: none; }
-.lg-board-sm .ib-wrap { width: min(64vw, 300px); }
+.lg-board-sm { width: 100%; }
+.lg-board-sm .ib-wrap { width: min(100%, 460px); }
 .hl-zone { padding: 6px 14px; }
 .hl-val { font-size: clamp(2.4rem, 11vw, 3.4rem); }
 .hl-arrow { font-size: 2.1rem; }
@@ -701,3 +702,21 @@ textarea.text-input { min-height: 70px; padding: 10px 14px; font-family: var(--t
 .hilo .fp-grid button, .hilo .fp-extra button, .hilo .fp-mult button { min-height: 40px; }
 .hilo .num-pad button { min-height: 48px; }
 .pc .btn.stacked[data-hint] { flex-wrap: nowrap; }
+
+/* Lern-Board: so groß wie möglich */
+.learn-game .lg-input { margin: 0 -10px; width: calc(100% + 20px); }
+.learn-game .lg-input .ib-wrap { width: min(100%, 620px); }
+.learn-game .big.lg-rest { font-size: clamp(4rem, 20vw, 8rem); }
+.lg-board-sm .ib-wrap { width: min(84vw, 400px, 46vh); }
+.learn-game .lg-stage .x01-input { padding: 2px 14px; }
+.learn-game .lg-stage .x01-input .val { font-size: 2rem; }
+.learn-game .lg-feedback { min-height: 2.2em; }
+.lg-board-sm .ib-wrap { width: min(78vw, 400px, 42vh); }
+.learn-game .lg-stage .x01-input { height: 52px; min-height: 0; align-items: center; }
+.learn-game .lg-stage .x01-input .val { line-height: 1; }
+.learn-game .num-pad button { min-height: 48px; }
+.lg-feedback { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 6px; }
+.lg-feedback .fb-next { min-height: 36px; padding: 4px 14px; font-size: .9rem; margin-left: 6px; }
+.lg-board-sm .ib-wrap { width: min(78vw, 400px, 38vh); }
+.lg-board-sm .ib-wrap { width: min(78vw, 400px, 35vh); }
+.learn-game .num-pad button { min-height: 44px; }
