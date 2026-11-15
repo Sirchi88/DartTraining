@@ -16,6 +16,9 @@ Für die Installation als App (Homescreen) und den Offline-Modus muss die Seite 
 
 ## Inhalt
 - **Startmenü:** TheLeek Trainingsprogramm · Individuelles Trainingsprogramm (gespeicherte Pläne mit Namen & Parametern) · Einzeltraining · 1vs1 (im Admin abschaltbar)
+- **Darts lernen:** Finish-Wege, Ich werde Caller, Dart-Quiz (Fragen in `data/quiz.json`, im Admin bearbeitbar) – 1vs1 per Code/Link mit identischen Aufgaben (Seed)
+- **Mehrspieler:** Höher 41 – Tiefer 26 (2–8 Spieler)
+- **Tastenkürzel:** Enter, Leertaste, Backspace, Esc, Ziffern – am PC unter jedem Button angezeigt
 - **Extras:** Trainings-Kalender + Serie, Leek-Abzeichen, Fernsicht-Modus im Querformat
 - **Spiele:** Warm-up, 20/19/18/17/Bull, Around the Clock Single/Doppel/Triple (Modus Einfach/Ausführlich), 20-Switch,
   Random Checkouts, Ich liebe meine Doppel, 121 (Klassisch/Leek/GROB Boys), Dran bleiben Junge, Leek Survival
@@ -23,9 +26,8 @@ Für die Installation als App (Homescreen) und den Offline-Modus muss die Seite 
 - Jedes Spiel hat ein „i“ mit animierter Dartscheibe; kurze Töne (im Admin abschaltbar)
 
 ## Tastatur (PC)
-- Around the Clock: **Enter** = Treffer, **Leertaste** = Fehlwurf, **Backspace** = Undo
-- Random Checkouts: **Enter** = Check, **Leertaste** = Fail, **Backspace** = Undo, **P** = Pause (Zeitmodus)
-- Timer-Spiele: **Leertaste/Enter** = Start/Pause
+Einheitlich: **Enter** = Bestätigen/Check/Treffer/Weiter · **Leertaste** = Fail/Fehlwurf · **Backspace** = Undo · **Esc** = Pause/Zurück · **0–9** = Zahlen · **1–4** = Quiz-Antwort A–D.
+Ein Kürzel löst nur aus, wenn der Button auf dem Screen sichtbar ist (`data-key` am Button, siehe `js/keys.js`).
 
 ## Aufbau
 ```

@@ -54,6 +54,8 @@ export function createBoard({ numbers = true, className = '' } = {}) {
 
   const api = {
     el: svg,
+    nodes,
+    layer: marks,
     clear() {
       svg.querySelectorAll('.hl, .hl-steady, .hl-dim').forEach(n => n.classList.remove('hl', 'hl-steady', 'hl-dim'));
       svg.querySelectorAll('.b-num.on').forEach(n => n.classList.remove('on'));

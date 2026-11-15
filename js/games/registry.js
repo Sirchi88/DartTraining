@@ -11,8 +11,9 @@ import doubles from './doubles.js';
 import l121 from './l121.js';
 import drill from './drill.js';
 import survival from './survival.js';
+import hilo from './hilo.js';
 
-export const GAMES = [warmup, sequence, atcSingle, atcDouble, atcTriple, switchGame, checkouts, doubles, l121, drill, survival];
+export const GAMES = [warmup, sequence, atcSingle, atcDouble, atcTriple, switchGame, checkouts, doubles, l121, drill, survival, hilo];
 
 // Kachel-Grafik + minimale Erklärung
 const META = {
@@ -27,6 +28,7 @@ const META = {
   l121: ['121', '9 Darts pro Zahl – wie hoch kommst du?'],
   drill: ['🔧', 'Deine Schwächen gezielt üben.'],
   survival: ['💚', 'Endlos mit Leben – Rekord jagen.'],
+  hilo: ['↕', '2–8 Spieler: höher oder tiefer – sonst raus.'],
 };
 for (const g of GAMES) if (META[g.id]) { g.glyph = META[g.id][0]; g.tile = META[g.id][1]; }
 export const GAME_IDS = GAMES.map(g => g.id);

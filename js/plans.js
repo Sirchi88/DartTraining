@@ -1,6 +1,15 @@
 // Einstellbare Parameter pro Spiel für eigene Trainingspläne.
 // Schlüssel entsprechen den globalen Einstellungen (settings.js) – ein Plan überschreibt sie nur für seinen Lauf.
 export const PLAN_PARAMS = {
+  sequence: [
+    { key: 'seqHits', label: 'Treffer 20–17', type: 'number', min: 1, max: 50 },
+    { key: 'seqBullHits', label: 'Treffer Bull', type: 'number', min: 1, max: 50 },
+  ],
+  hilo: [
+    { key: 'hlUpper', label: 'Obergrenze', type: 'number', min: 1, max: 179 },
+    { key: 'hlLower', label: 'Untergrenze', type: 'number', min: 1, max: 179 },
+    { key: 'hlPlayers', label: 'Spieler', type: 'number', min: 2, max: 8 },
+  ],
   warmup: [{ key: 'warmupMin', label: 'Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min']] }],
   switch: [{ key: 'switchMin', label: 'Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min']] }],
   atcSingle: [{ key: 'atcMode', label: 'Modus', type: 'choice', options: [['simple', 'Einfach'], ['detailed', 'Ausführlich']] }],

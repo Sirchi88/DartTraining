@@ -59,8 +59,8 @@ export default {
             h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Checkout-Weg anzeigen', h('small', {}, 'z. B. 81 = T19 D12')),
               toggleSwitch(showPath, v => { showPath = v; }, 'Checkout-Weg anzeigen'))),
           h('p', { class: 'muted small-text', style: { textAlign: 'center', margin: '4px 0' } },
-            'Double-Out · 3 Darts pro Zahl', h('br'), 'Tastatur: Enter = Check · Leertaste = Fail · Backspace = Undo')),
-        h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Los geht’s'))));
+            'Double-Out · 3 Darts pro Zahl')),
+        h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Los geht’s'))));
     }
 
     function pick() {
@@ -85,8 +85,8 @@ export default {
       el.progressText = h('div', { class: 'label' });
       el.checks = h('b'); el.fails = h('b'); el.quote = h('b');
       el.attempts = h('div', { class: 'attempt-counter' });
-      el.undo = h('button', { class: 'btn ghost small', onClick: undo }, icon('undo'), 'Undo');
-      el.pause = mode === 'time' ? h('button', { class: 'btn ghost small', onClick: togglePause }, 'Pause') : null;
+      el.undo = h('button', { 'data-key': 'Backspace', class: 'btn ghost small', onClick: undo }, icon('undo'), 'Undo');
+      el.pause = mode === 'time' ? h('button', { 'data-key': 'Escape', class: 'btn ghost small', onClick: togglePause }, 'Pause') : null;
       const pathToggle = toggleSwitch(showPath, v => { showPath = v; paint(); }, 'Checkout-Weg anzeigen');
 
       root.replaceChildren(h('div', { class: 'game' },
@@ -103,8 +103,8 @@ export default {
           el.attempts),
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn huge fail stacked', 'data-snd': 'none', onClick: () => enter(false) }, 'Fail', h('small', { class: 'btn-sub' }, 'Leertaste')),
-            h('button', { class: 'btn huge check stacked', 'data-snd': 'none', onClick: () => enter(true) }, 'Check', h('small', { class: 'btn-sub' }, 'Enter'))),
+            h('button', { 'data-key': 'Space', class: 'btn huge fail stacked', 'data-snd': 'none', onClick: () => enter(false) }, 'Fail'),
+            h('button', { 'data-key': 'Enter', class: 'btn huge check stacked', 'data-snd': 'none', onClick: () => enter(true) }, 'Check')),
           h('div', { class: 'btn-row', style: { gridTemplateColumns: el.pause ? 'auto 1fr 1fr' : 'auto 1fr' } },
             h('label', { class: 'btn ghost small', style: { gap: '10px', fontSize: '1rem' } }, 'Weg', pathToggle),
             el.undo, el.pause))));
@@ -193,7 +193,7 @@ export default {
               h('div', { class: 'stat red' }, h('b', {}, run.fails), h('span', {}, 'Fails')))),
           h('div', { class: 'btn-row', style: { marginBottom: '14px' } },
             h('button', { class: 'btn huge ghost', onClick: setup }, 'Nochmal'),
-            h('button', { class: 'btn huge primary', onClick: () => ctx.finish(lastResult()) }, 'Weiter')),
+            h('button', { 'data-key': 'Enter', class: 'btn huge primary', onClick: () => ctx.finish(lastResult()) }, 'Weiter')),
           nums.length ? h('div', { class: 'card' }, h('h3', {}, 'Pro Zahl'),
             h('div', { class: 'weak-list' }, nums.map(([n, [a, c]]) =>
               h('div', { class: `weak ${c === a ? 'good' : c === 0 ? 'bad' : 'mixed'}` }, h('b', {}, n), h('span', {}, `${c}/${a}`), h('div', { class: 'small-text' }, `${pct(c, a)}%`))))) : null)));

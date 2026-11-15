@@ -129,7 +129,7 @@ export default {
           cards,
           h('div', { class: 'card' }, h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Leben für diese Runde', h('small', {}, 'individuell anpassbar')),
             stepper(lives0[diff], { min: 1, max: 30 }, v => { lives0[diff] = v; paint(); })))),
-        h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Challenge starten'))));
+        h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Challenge starten'))));
     }
     const runsOf = k => store.list('survivalRuns').filter(r => r.difficulty === k);
     const bestOf = k => Math.max(0, ...runsOf(k).map(r => r.highestRound));
@@ -195,10 +195,10 @@ export default {
           h('div', { class: `flash ${flash ? (flash.ok ? 'ok' : 'bad') : 'empty'}` }, flash ? flash.msg : '\u00a0')),
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn huge fail', 'data-snd': 'none', onClick: () => answer(false) }, 'Verfehlt'),
-            h('button', { class: 'btn huge check', 'data-snd': 'none', onClick: () => answer(true) }, 'Geschafft')),
+            h('button', { 'data-key': 'Space', class: 'btn huge fail', 'data-snd': 'none', onClick: () => answer(false) }, 'Verfehlt'),
+            h('button', { 'data-key': 'Enter', class: 'btn huge check', 'data-snd': 'none', onClick: () => answer(true) }, 'Geschafft')),
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn ghost small', disabled: !snapshot, onClick: undo }, icon('undo'), 'Undo'),
+            h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !snapshot, onClick: undo }, icon('undo'), 'Undo'),
             h('button', { class: 'btn ghost small', onClick: gameOver }, 'Aufgeben')))));
     }
 
@@ -236,7 +236,7 @@ export default {
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
             h('button', { class: 'btn huge ghost', onClick: setup }, 'Nochmal'),
-            h('button', { class: 'btn huge primary', onClick: () => ctx.finish({ difficulty: diff, highestRound: run.highestRound, quote: run.quote, livesLost: run.livesLost, record }) }, 'Weiter')))));
+            h('button', { 'data-key': 'Enter', class: 'btn huge primary', onClick: () => ctx.finish({ difficulty: diff, highestRound: run.highestRound, quote: run.quote, livesLost: run.livesLost, record }) }, 'Weiter')))));
     }
 
     ctx.onKey(e => {

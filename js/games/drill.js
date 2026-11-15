@@ -42,7 +42,7 @@ export default {
               h('div', { class: w.quote != null ? 'q' : 'small-text muted' }, w.quote != null ? `${Math.round(w.quote * 100)}%` : 'Standard'))))),
           h('div', { class: 'card' }, h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Dauer'),
             segmented([[3, '3'], [5, '5'], [7, '7 Min']], minutes, v => { minutes = v; })))),
-        h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Los geht’s'))));
+        h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Los geht’s'))));
     }
 
     function nextTarget() {
@@ -61,7 +61,7 @@ export default {
       el.title = h('div', { class: 'label', style: { marginTop: '8px' } });
       el.target = h('div', { class: 'big medium' }); el.path = h('div', { class: 'path' });
       el.score = h('div', { class: 'attempt-counter' });
-      el.undo = h('button', { class: 'btn ghost small', onClick: undo }, icon('undo'), 'Undo');
+      el.undo = h('button', { 'data-key': 'Backspace', class: 'btn ghost small', onClick: undo }, icon('undo'), 'Undo');
       root.replaceChildren(h('div', { class: 'game' },
         h('div', { class: 'stage' },
           el.clock, h('div', { class: 'progress', style: { maxWidth: '420px' } }, el.bar),
@@ -70,8 +70,8 @@ export default {
           el.score),
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn huge fail', 'data-snd': 'none', onClick: () => enter(false) }, 'Nicht geschafft'),
-            h('button', { class: 'btn huge check', 'data-snd': 'none', onClick: () => enter(true) }, 'Geschafft')),
+            h('button', { 'data-key': 'Space', class: 'btn huge fail', 'data-snd': 'none', onClick: () => enter(false) }, 'Nicht geschafft'),
+            h('button', { 'data-key': 'Enter', class: 'btn huge check', 'data-snd': 'none', onClick: () => enter(true) }, 'Geschafft')),
           h('div', { class: 'btn-row' }, el.undo, h('button', { class: 'btn ghost small', onClick: finish }, 'Beenden')))));
       timer = new Countdown(minutes * 60000, { onTick: paint, onEnd: finish });
       timer.start();
@@ -124,7 +124,7 @@ export default {
             h('div', { class: 'label' }, `${ok} von ${log.length} Aufgaben geschafft`)),
           h('div', { class: 'card' }, h('h3', {}, 'Pro Ziel'),
             h('div', { class: 'weak-list' }, Object.entries(per).map(([k, [a, c]]) => h('div', { class: 'weak' }, h('b', {}, k), h('span', {}, `${c}/${a}`), h('div', { class: c / a < .5 ? 'q' : 'small-text' }, `${pct(c, a)}%`)))))),
-        h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', onClick: () => ctx.finish({ attempts: log.length, ok, quote: pct(ok, log.length) }) }, 'Weiter'))));
+        h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', onClick: () => ctx.finish({ attempts: log.length, ok, quote: pct(ok, log.length) }) }, 'Weiter'))));
     }
 
     ctx.onKey(e => {

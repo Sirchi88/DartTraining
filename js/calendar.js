@@ -10,6 +10,8 @@ export function trainingDays() {
   const add = ts => { if (ts) { const k = dayKey(ts); m.set(k, (m.get(k) || 0) + 1); } };
   for (const s of store.sessions) add(s.start);
   for (const v of store.list('versusMatches')) add(v.date);
+  for (const v of store.list('learnRuns')) add(v.date);
+  for (const v of store.list('hiloGames')) add(v.date);
   return m;
 }
 

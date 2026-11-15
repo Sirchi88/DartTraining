@@ -4,6 +4,7 @@ import { sound } from '../sound.js';
 import { store } from '../store.js';
 import { SETTINGS_SCHEMA, defaultSettings } from '../settings.js';
 import { gameById, GAME_IDS } from '../games/registry.js';
+import { loadQuiz, defaultQuiz } from '../learn/quizdata.js';
 
 export function renderAdmin({ onBack }) {
   const body = h('div', { class: 'scroll' });
@@ -23,7 +24,7 @@ export function renderAdmin({ onBack }) {
       body.append(h('div', { class: 'card' }, h('h3', {}, title), fields.map(f => fieldRow(f, s[f.key]))));
     }
 
-    body.append(leekOrderCard(), dataCard(),
+    body.append(leekOrderCard(), quizCard(), dataCard(),
       h('div', { class: 'card' }, h('h3', {}, 'Zurücksetzen'),
         h('button', { class: 'btn ghost small', style: { width: '100%' }, onClick: async () => {
           if (await confirmDialog({ title: 'Einstellungen zurücksetzen?', text: 'Alle Einstellungen werden auf die Standardwerte gesetzt. Die Statistik bleibt erhalten.', ok: 'Zurücksetzen', danger: true })) {
@@ -113,4 +114,61 @@ function exportCsv() {
   for (const r of store.list('doublesRuns')) rows.push(['Doppel', fmtDate(r.date), r.id, r.seq.join(' '), Math.round(r.durationMs / 1000), '', `${r.perMin}/Min`, '', r.hits, '', '']);
   for (const r of store.list('versusMatches')) rows.push(['1vs1', fmtDate(r.date), r.id, r.duel, '', '', r.players.join(' vs '), '', '', '', '', r.winner ?? 'Unentschieden']);
   download(`leek-darttraining-${stamp()}.csv`, csv(rows), 'text/csv;charset=utf-8');
+}
+
+// ---- Quiz-Fragen verwalten ----
+function quizCard() {
+  const card = h('div', { class: 'card' }, h('h3', {}, 'Quiz-Fragen'), h('p', { class: 'muted small-text' }, 'Lade …'));
+  const list = h('div', {});
+  let data = null, filter = 'all', open = false;
+  const save = () => { store.saveQuiz(data); paint(); };
+  const paint = () => {
+    const qs = data.questions.filter(q => filter === 'all' || q.cat === filter);
+    card.replaceChildren(
+      h('h3', {}, `Quiz-Fragen · ${data.questions.length}`),
+      h('p', { class: 'muted small-text' }, store.quiz ? 'Eigener Fragenpool (angepasst).' : 'Standard-Fragenpool aus der App.'),
+      h('div', { class: 'chip-row', style: { marginBottom: '8px' } },
+        [['all', 'Alle'], ...Object.entries(data.categories)].map(([k, l]) => h('button', { class: `chip-btn${filter === k ? ' on' : ''}`, onClick: () => { filter = k; paint(); } }, l))),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn ghost small', onClick: () => edit(null) }, '+ Frage hinzufügen'),
+        h('button', { class: 'btn ghost small', onClick: () => { open = !open; paint(); } }, open ? 'Liste zuklappen' : `Liste zeigen (${qs.length})`)),
+      open ? list : null,
+      store.quiz ? h('button', { class: 'btn ghost small', style: { width: '100%', marginTop: '10px' }, onClick: async () => {
+        if (!(await confirmDialog({ title: 'Standard-Fragen wiederherstellen?', text: 'Eigene Änderungen am Fragenpool gehen verloren.', ok: 'Wiederherstellen', danger: true }))) return;
+        store.saveQuiz(null); data = JSON.parse(JSON.stringify(await defaultQuiz())); paint();
+      } }, 'Standard-Fragen wiederherstellen') : null);
+    list.replaceChildren(...qs.map(q => h('div', { class: 'quiz-admin-item' },
+      h('div', { class: 'qa-txt' }, h('b', {}, q.q), h('span', { class: 'muted' }, `✓ ${q.a} · ✗ ${q.wrong.join(' · ')}`)),
+      h('button', { onClick: () => edit(q) }, 'Bearbeiten'),
+      h('button', { onClick: async () => {
+        if (!(await confirmDialog({ title: 'Frage löschen?', text: q.q, ok: 'Löschen', danger: true }))) return;
+        data.questions = data.questions.filter(x => x.id !== q.id); save();
+      } }, '🗑'))));
+  };
+  function edit(q) {
+    const cur = q ? { ...q, wrong: [...q.wrong] } : { id: `u${Date.now().toString(36)}`, cat: filter === 'all' ? 'regeln' : filter, q: '', a: '', wrong: ['', '', ''] };
+    const qIn = h('textarea', { class: 'text-input', placeholder: 'Frage' }); qIn.value = cur.q;
+    const aIn = h('input', { class: 'text-input', placeholder: 'Richtige Antwort', value: cur.a });
+    const wIn = cur.wrong.map((w, i) => h('input', { class: 'text-input', placeholder: `Falsche Antwort ${i + 1}`, value: w }));
+    let cat = cur.cat;
+    const root = document.getElementById('modal-root');
+    const close = () => back.remove();
+    const back = h('div', { class: 'modal-back' }, h('div', { class: 'modal stack', role: 'dialog' },
+      h('h3', {}, q ? 'Frage bearbeiten' : 'Neue Frage'),
+      segmented(Object.entries(data.categories).map(([k, l]) => [k, l.split(' ')[0]]), cat, v => { cat = v; }),
+      qIn, aIn, ...wIn,
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn ghost', 'data-key': 'Escape', onClick: close }, 'Abbrechen'),
+        h('button', { class: 'btn primary', onClick: () => {
+          const item = { id: cur.id, cat, q: qIn.value.trim(), a: aIn.value.trim(), wrong: wIn.map(x => x.value.trim()) };
+          if (!item.q || !item.a || item.wrong.some(w => !w)) { toast('Bitte Frage und alle 4 Antworten ausfüllen'); return; }
+          const i = data.questions.findIndex(x => x.id === item.id);
+          if (i >= 0) data.questions[i] = item; else data.questions.push(item);
+          save(); close(); toast('Frage gespeichert ✓');
+        } }, 'Speichern'))));
+    root.append(back);
+    qIn.focus();
+  }
+  loadQuiz().then(d => { data = JSON.parse(JSON.stringify(d)); paint(); }).catch(() => { card.replaceChildren(h('h3', {}, 'Quiz-Fragen'), h('p', { class: 'muted' }, 'Fragen konnten nicht geladen werden.')); });
+  return card;
 }

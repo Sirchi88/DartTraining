@@ -15,7 +15,7 @@ export function timedGame({ id, name, short, settingKey, title, renderHint, info
       const chooser = h('div', { class: 'chooser' }, segmented([[3, '3 Min'], [5, '5 Min']], minutes, v => {
         minutes = v; timer = makeTimer(); clock.textContent = fmtClock(minutes * 60000);
       }));
-      const mainBtn = h('button', { class: 'btn huge primary', 'data-snd': 'none', onClick: () => main() }, 'Start');
+      const mainBtn = h('button', { 'data-key': 'Enter Escape', class: 'btn huge primary', 'data-snd': 'none', onClick: () => main() }, 'Start');
       const nextBtn = h('button', { class: 'btn ghost', onClick: () => ctx.finish({ minutes, completed: ended }) }, 'Überspringen');
 
       const makeTimer = () => new Countdown(minutes * 60000, {

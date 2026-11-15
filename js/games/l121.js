@@ -51,11 +51,11 @@ export function create121(variant) {
 export function buttons121(variant, onAttempt) {
   const sub = d => variant === 'grob' ? (d === 3 ? '+2 Leben' : d === 6 ? '+1 Leben' : 'nur weiter')
     : variant === 'leek' ? (d === 3 ? 'Zahl einloggen 🔒' : 'weiter') : 'weiter';
-  const okBtn = d => h('button', { class: 'btn check c121', 'data-snd': 'none', onClick: () => onAttempt(d) },
+  const okBtn = d => h('button', { 'data-key': String(d / 3), class: 'btn check c121', 'data-snd': 'none', onClick: () => onAttempt(d) },
     h('span', {}, 'Geschafft mit'), h('b', { class: 'dn' }, `${d} Darts`), h('small', { class: 'btn-sub' }, sub(d)));
   return h('div', { class: 'grid121' },
     okBtn(3), okBtn(6), okBtn(9),
-    h('button', { class: 'btn fail c121', 'data-snd': 'none', onClick: () => onAttempt(0) },
+    h('button', { 'data-key': 'Space', class: 'btn fail c121', 'data-snd': 'none', onClick: () => onAttempt(0) },
       h('b', { class: 'dn' }, 'Nicht'), h('span', {}, 'gecheckt'), h('small', { class: 'btn-sub' }, variant === 'grob' ? '−1 Leben' : 'zurück')));
 }
 
@@ -98,7 +98,7 @@ export default {
       paint();
       root.replaceChildren(h('div', { class: 'game' },
         h('div', { class: 'scroll stack', style: { paddingTop: '6px' } }, h('div', { class: 'label' }, 'Variante wählen'), cards),
-        h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start bei 121'))));
+        h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start bei 121'))));
     }
 
     function start() {
@@ -131,7 +131,7 @@ export default {
         h('div', { class: 'controls' },
           buttons121(variant, act),
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn ghost small', disabled: !st.history.length, onClick: () => { game.undo(); flash = ''; render(); } }, icon('undo'), 'Undo'),
+            h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !st.history.length, onClick: () => { game.undo(); flash = ''; render(); } }, icon('undo'), 'Undo'),
             h('button', { class: 'btn ghost small', onClick: finish }, 'Fertig')))));
     }
 
@@ -157,7 +157,7 @@ export default {
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
             h('button', { class: 'btn huge ghost', onClick: ctx.leek ? start : setup }, 'Nochmal'),
-            h('button', { class: 'btn huge primary', onClick: () => ctx.finish({ variant, highest: st.highest, checks: st.checks, attempts: st.attempts }) }, 'Weiter')))));
+            h('button', { 'data-key': 'Enter', class: 'btn huge primary', onClick: () => ctx.finish({ variant, highest: st.highest, checks: st.checks, attempts: st.attempts }) }, 'Weiter')))));
     }
 
     ctx.onKey(e => {

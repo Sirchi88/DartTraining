@@ -3,12 +3,12 @@ import { normalizeSettings } from './settings.js';
 
 const KEY = 'leek-darttraining-v1';
 // Weitere Protokolle (einfach erweiterbar)
-const LOGS = ['checkoutRuns', 'atcRuns', 'l121Runs', 'doublesRuns', 'drillRuns', 'survivalRuns', 'versusMatches'];
+const LOGS = ['checkoutRuns', 'atcRuns', 'l121Runs', 'doublesRuns', 'drillRuns', 'survivalRuns', 'versusMatches', 'hiloGames', 'learnRuns'];
 
 function load() {
   let raw = {};
   try { raw = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { raw = {}; }
-  const d = { settings: raw.settings || null, sessions: Array.isArray(raw.sessions) ? raw.sessions : [], fieldStats: raw.fieldStats || {}, badges: raw.badges || {}, scoreFreq: raw.scoreFreq || {} };
+  const d = { settings: raw.settings || null, sessions: Array.isArray(raw.sessions) ? raw.sessions : [], fieldStats: raw.fieldStats || {}, badges: raw.badges || {}, scoreFreq: raw.scoreFreq || {}, quiz: raw.quiz || null, learnDuels: raw.learnDuels || {} };
   for (const k of LOGS) d[k] = Array.isArray(raw[k]) ? raw[k] : [];
   return d;
 }
@@ -38,6 +38,12 @@ export const store = {
   get badges() { return data.badges; },
   unlockBadge(id) { if (data.badges[id]) return false; data.badges[id] = Date.now(); persist(); return true; },
   list(kind) { return data[kind] || []; },
+  // Quiz: eigener Fragenpool (null = Standard aus data/quiz.json)
+  get quiz() { return data.quiz; },
+  saveQuiz(q) { data.quiz = q; persist(); },
+  // 1vs1 „Darts lernen“: Duelle nach Seed
+  get learnDuels() { return data.learnDuels; },
+  saveDuel(key, patch) { data.learnDuels[key] = { ...(data.learnDuels[key] || {}), ...patch }; persist(); return data.learnDuels[key]; },
   // Häufigste Aufnahmen pro Spieler (für 501-Schnelltasten)
   bumpScore(name, v) {
     const m = data.scoreFreq[name] || (data.scoreFreq[name] = {});
@@ -70,6 +76,7 @@ export const store = {
     data.sessions = [];
     data.fieldStats = {};
     data.badges = {};
+    data.learnDuels = {};
     for (const k of LOGS) data[k] = [];
     persist();
   },

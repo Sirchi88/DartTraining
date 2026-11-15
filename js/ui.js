@@ -32,6 +32,7 @@ export const ICONS = {
   sliders: svg('<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>'),
   dart: svg('<path d="M3 21l7.5-7.5"/><path d="M14 4l6 6-4.5 1.5L12.5 8.5 14 4z"/><path d="M10.5 13.5l2-5 3 3-5 2z"/><path d="M3 21l2.5-1 .5-2-2 .5z"/>'),
   heart: svg('<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'),
+  learn: svg('<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 10v6"/>'),
   targetLine: svg('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M19 5l-5.5 5.5M19 5h-3M19 5v3"/>'),
   play: svg('<path d="M6 4l14 8-14 8z"/>'),
   undo: svg('<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>'),
@@ -40,7 +41,7 @@ export const ICONS = {
 export const icon = name => h('span', { html: ICONS[name], style: { display: 'contents' } });
 
 export function iconBtn(name, label, onClick) {
-  return h('button', { class: 'icon-btn', 'aria-label': label, title: label, onClick, html: ICONS[name] });
+  return h('button', { class: 'icon-btn', 'aria-label': label, title: label, onClick, html: ICONS[name], 'data-key': name === 'back' || name === 'close' ? 'Escape' : null });
 }
 
 export function fmtClock(ms) {
@@ -63,18 +64,14 @@ export const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 export function confirmDialog({ title, text, ok = 'OK', cancel = 'Abbrechen', danger = false }) {
   return new Promise(resolve => {
     const root = document.getElementById('modal-root');
-    const close = v => { back.remove(); document.removeEventListener('keydown', onKey, true); resolve(v); };
-    const onKey = e => {
-      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(false); }
-    };
-    const okBtn = h('button', { class: `btn ${danger ? 'fail' : 'primary'}`, onClick: () => close(true) }, ok);
+    const close = v => { back.remove(); resolve(v); };
+    const okBtn = h('button', { 'data-key': 'Enter', class: `btn ${danger ? 'fail' : 'primary'}`, onClick: () => close(true) }, ok);
     const back = h('div', { class: 'modal-back', onClick: e => { if (e.target === back) close(false); } },
       h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' },
         h('h3', {}, title),
         text ? h('p', {}, text) : null,
-        h('div', { class: 'btn-row' }, h('button', { class: 'btn ghost', onClick: () => close(false) }, cancel), okBtn)));
+        h('div', { class: 'btn-row' }, h('button', { 'data-key': 'Escape', class: 'btn ghost', onClick: () => close(false) }, cancel), okBtn)));
     root.append(back);
-    document.addEventListener('keydown', onKey, true);
     okBtn.focus();
   });
 }

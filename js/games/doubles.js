@@ -66,7 +66,7 @@ export default {
             mode === 'time'
               ? h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Dauer'), segmented([[3, '3 Min'], [5, '5 Min'], [7, '7 Min']], minutes, v => { minutes = v; }))
               : h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Treffer-Ziel'), stepper(target, { min: 1, max: 200 }, v => { target = v; })))),
-        h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Start'))));
+        h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'none', onClick: start }, 'Start'))));
       paintSeq();
     }
 
@@ -86,7 +86,7 @@ export default {
         if (mode === 'time') { status.textContent = `${fmtClock(timer.left)} · Treffer`; bar.style.width = `${100 - (timer.left / timer.total) * 100}%`; }
         else { status.textContent = `Treffer ${hits} / ${target} · ${fmtClock(Date.now() - startedAt + 999)}`; bar.style.width = `${(hits / target) * 100}%`; }
       };
-      const undoBtn = h('button', { class: 'btn ghost small', onClick: () => { if (hits > 0) { hits--; paint(); } } }, icon('undo'), 'Undo');
+      const undoBtn = h('button', { 'data-key': 'Backspace', class: 'btn ghost small', onClick: () => { if (hits > 0) { hits--; paint(); } } }, icon('undo'), 'Undo');
       root.replaceChildren(h('div', { class: 'game' },
         h('div', { class: 'stage' },
           status, h('div', { class: 'progress', style: { maxWidth: '420px' } }, bar),
@@ -94,7 +94,7 @@ export default {
           h('div', { class: 'board-wrap small' }, board.el),
           count),
         h('div', { class: 'controls' },
-          h('button', { class: 'btn huge check xl stacked', 'data-snd': 'none', onClick: check }, 'Check', h('small', { class: 'btn-sub' }, 'jeder Treffer auf ein Doppel')),
+          h('button', { 'data-key': 'Enter', class: 'btn huge check xl stacked', 'data-snd': 'none', onClick: check }, 'Check', h('small', { class: 'btn-sub' }, 'jeder Treffer auf ein Doppel')),
           h('div', { class: 'btn-row' }, undoBtn, h('button', { class: 'btn ghost small', onClick: () => finish() }, 'Beenden')))));
       function check() {
         if (phase !== 'play') return;
@@ -130,7 +130,7 @@ export default {
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
             h('button', { class: 'btn huge ghost', onClick: setup }, 'Nochmal'),
-            h('button', { class: 'btn huge primary', onClick: () => ctx.finish({ hits, perMin, durationMs, seq }) }, 'Weiter')))));
+            h('button', { 'data-key': 'Enter', class: 'btn huge primary', onClick: () => ctx.finish({ hits, perMin, durationMs, seq }) }, 'Weiter')))));
     }
 
     ctx.onKey(e => {

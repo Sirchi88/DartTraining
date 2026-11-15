@@ -23,15 +23,13 @@ export function showInfo(game) {
   }
 
   const root = document.getElementById('modal-root');
-  const close = () => { clearTimers(); back.remove(); document.removeEventListener('keydown', onKey, true); };
-  const onKey = e => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); close(); } };
+  const close = () => { clearTimers(); back.remove(); };
   const back = h('div', { class: 'modal-back', onClick: e => { if (e.target === back) close(); } },
     h('div', { class: 'modal info-modal', role: 'dialog', 'aria-modal': 'true' },
       h('h3', {}, game.name),
       h('div', { class: 'info-stage' }, board.el, cap, dots),
       h('ul', { class: 'info-lines' }, info.lines.map(l => h('li', {}, l))),
-      h('button', { class: 'btn primary', onClick: close }, 'Verstanden')));
+      h('button', { 'data-key': 'Enter Escape Space', class: 'btn primary', onClick: close }, 'Verstanden')));
   root.append(back);
-  document.addEventListener('keydown', onKey, true);
   step();
 }

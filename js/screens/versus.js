@@ -66,7 +66,7 @@ export function versusFlow(app) {
       players = [{ name: a, ch: withChars ? c1 : null }, { name: b, ch: withChars ? c2 : null }];
       withChars ? reveal() : choose();
     };
-    const goBtn = h('button', { class: 'btn huge primary', 'data-snd': 'start', onClick: go }, withChars ? 'Charaktere auslosen' : 'Weiter zur Spielwahl');
+    const goBtn = h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: go }, withChars ? 'Charaktere auslosen' : 'Weiter zur Spielwahl');
     app.show(h('section', { class: 'screen' },
       h('div', { class: 'topbar' }, iconBtn('back', 'Zurück', app.home), h('h2', {}, '1vs1', h('span', { class: 'sub' }, 'Duell auf einem Gerät'))),
       h('div', { class: 'scroll stack' },
@@ -96,7 +96,7 @@ export function versusFlow(app) {
         card(players[1], 1)),
       h('div', { class: 'controls' },
         h('button', { class: 'btn ghost small', onClick: () => { const [c1, c2] = shuffle(CHARACTERS); players[0].ch = c1; players[1].ch = c2; reveal(); } }, 'Neu auslosen'),
-        h('button', { class: 'btn huge primary', onClick: choose }, 'Spiel wählen'))),
+        h('button', { 'data-key': 'Enter', class: 'btn huge primary', onClick: choose }, 'Spiel wählen'))),
     { back: names });
     sound.play('lifeGain');
   }
@@ -157,7 +157,7 @@ export function versusFlow(app) {
         draw || !players[winner].ch ? null : h('div', { class: 'char-name' }, `„${players[winner].ch.name}“`),
         h('p', { class: 'hint' }, detail)),
       h('div', { class: 'controls' },
-        h('button', { class: 'btn huge primary', 'data-snd': 'start', onClick: () => startDuel(duel) }, 'Revanche'),
+        h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: () => startDuel(duel) }, 'Revanche'),
         h('div', { class: 'btn-row' },
           h('button', { class: 'btn ghost', onClick: choose }, 'Anderes Spiel'),
           h('button', { class: 'btn ghost', onClick: app.home }, 'Menü')))),
@@ -181,9 +181,9 @@ export function versusFlow(app) {
           h('div', { class: 'board-wrap small' }, board.el)),
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn huge fail', 'data-snd': 'none', onClick: () => dart(false) }, 'Fehlwurf'),
-            h('button', { class: 'btn huge check', 'data-snd': 'none', onClick: () => dart(true) }, 'Treffer')),
-          h('button', { class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo'))),
+            h('button', { 'data-key': 'Space', class: 'btn huge fail', 'data-snd': 'none', onClick: () => dart(false) }, 'Fehlwurf'),
+            h('button', { 'data-key': 'Enter', class: 'btn huge check', 'data-snd': 'none', onClick: () => dart(true) }, 'Treffer')),
+          h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo'))),
       { scores: st.idx.map(i => `${i}/${targets.length}`), active: p });
       app.show(f.el, { back: f.exit });
       app.setKey(e => { if (e.key === 'Enter') { e.preventDefault(); dart(true); } else if (e.key === ' ') { e.preventDefault(); dart(false); } else if (e.key === 'Backspace') { e.preventDefault(); undo(); } });
@@ -219,7 +219,7 @@ export function versusFlow(app) {
         h('div', { class: 'controls' },
           buttons121(duel.v, attempt),
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo'),
+            h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo'),
             h('button', { class: 'btn ghost small', onClick: end }, 'Fertig')))),
       { scores: games.map(x => x.st.highest || '–'), active: cur, under });
       app.show(f.el, { back: f.exit });
@@ -259,11 +259,11 @@ export function versusFlow(app) {
           h('div', { class: 'attempt-counter' }, `Erster zu ${goal} Checks · Versuche ${st.att[0]} : ${st.att[1]}`)),
         h('div', { class: 'controls' },
           h('div', { class: 'btn-row' },
-            h('button', { class: 'btn huge fail', 'data-snd': 'none', onClick: () => enter(false) }, 'Fail'),
-            h('button', { class: 'btn huge check', 'data-snd': 'none', onClick: () => enter(true) }, 'Check')),
+            h('button', { 'data-key': 'Space', class: 'btn huge fail', 'data-snd': 'none', onClick: () => enter(false) }, 'Fail'),
+            h('button', { 'data-key': 'Enter', class: 'btn huge check', 'data-snd': 'none', onClick: () => enter(true) }, 'Check')),
           h('div', { class: 'btn-row', style: { gridTemplateColumns: 'auto 1fr' } },
             h('label', { class: 'btn ghost small', style: { gap: '10px', fontSize: '1rem' } }, 'Weg', pathToggle),
-            h('button', { class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo')))),
+            h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo')))),
       { scores: st.checks, active: st.cur });
       app.show(f.el, { back: f.exit });
       app.setKey(e => { if (e.key === 'Enter') { e.preventDefault(); enter(true); } else if (e.key === ' ') { e.preventDefault(); enter(false); } else if (e.key === 'Backspace') { e.preventDefault(); undo(); } });
@@ -298,7 +298,7 @@ export function versusFlow(app) {
           h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Startpunkte'), segmented([[301, '301'], [501, '501'], [701, '701']], x01Opts.start, v => { x01Opts.start = v; })),
           h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Legs zum Sieg', h('small', {}, 'First to …')), segmented([[1, '1'], [2, '2'], [3, '3'], [5, '5']], x01Opts.firstTo, v => { x01Opts.firstTo = v; })),
           h('p', { class: 'muted small-text', style: { margin: '10px 0 0' } }, 'Double-Out · abwechselnder Anwurf pro Leg'))),
-      h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'start', onClick: () => x01Duel(duel) }, 'Game on!'))),
+      h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: () => x01Duel(duel) }, 'Game on!'))),
     { back: choose });
   }
 
@@ -320,7 +320,7 @@ export function versusFlow(app) {
         h('div', { class: 'rem' }, st.rem[i]),
         h('div', { class: 'co' }, checkable(st.rem[i]) ? checkoutPath(st.rem[i]) : ' '),
         h('div', { class: 'meta' }, `Ø ${avg(i)} · Letzte ${st.last[i] ?? '–'}`));
-      const key = (label, fn, cls = '') => h('button', { class: cls, 'data-snd': 'none', onClick: fn }, label);
+      const key = (label, fn, cls = '', k = null) => h('button', { class: cls, 'data-snd': 'none', onClick: fn, 'data-key': k ?? (/^\d$/.test(String(label)) ? String(label) : null) }, label);
       const f = frame(duel, h('div', { class: 'game' },
         h('div', { class: 'stage x01-stage' },
           h('div', { class: 'x01-scores' }, card(0), card(1)),
@@ -329,10 +329,10 @@ export function versusFlow(app) {
           h('div', { class: 'shortcuts' }, shortcuts[p].map(v => key(v, () => submit(v)))),
           h('div', { class: 'keypad' },
             [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => key(n, () => type(String(n)))),
-            key('⌫', back, 'del'), key('0', () => type('0')), key('OK', () => submit(Number(input || 0)), 'ok')),
+            key('⌫', () => (input ? back() : undo()), 'del', 'Backspace'), key('0', () => type('0')), key('OK', () => submit(Number(input || 0)), 'ok', 'Enter')),
           h('div', { class: 'btn-row', style: { gridTemplateColumns: '1fr 2fr' } },
             h('button', { class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo'),
-            h('button', { class: 'btn check', 'data-snd': 'none', onClick: check, disabled: !checkable(st.rem[p]) }, `Check${checkable(st.rem[p]) ? ` (${st.rem[p]})` : ''}`)))),
+            h('button', { 'data-key': 'c', class: 'btn check', 'data-snd': 'none', onClick: check, disabled: !checkable(st.rem[p]) }, `Check${checkable(st.rem[p]) ? ` (${st.rem[p]})` : ''}`)))),
       { scores: st.rem, active: p, bar: false, under: h('div', { class: 'x01-legs' }, `First to ${firstTo} · Legs ${st.legs[0]} : ${st.legs[1]}`) });
       app.show(f.el, { back: f.exit });
       app.setKey(e => {

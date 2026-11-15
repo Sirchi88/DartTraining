@@ -2,6 +2,7 @@ import { h, iconBtn, ICONS, confirmDialog, toast, gameTile } from './ui.js';
 import { store, uid } from './store.js';
 import { GAMES, GAME_IDS, gameById } from './games/registry.js';
 import { wakeLock } from './wakelock.js';
+import { keyName, findKeyButton } from './keys.js';
 import { sound } from './sound.js';
 import { showInfo } from './info.js';
 import { renderHistory } from './screens/history.js';
@@ -9,6 +10,7 @@ import { renderAdmin } from './screens/admin.js';
 import { renderSummary, readiness } from './screens/summary.js';
 import { versusFlow } from './screens/versus.js';
 import { customFlow, programPreview } from './screens/custom.js';
+import { learnFlow } from './screens/learn.js';
 import { checkBadges } from './badges.js';
 import { streak } from './calendar.js';
 
@@ -40,14 +42,26 @@ window.addEventListener('popstate', () => {
   fn();
 });
 
+// Tastenkürzel: zuerst passender Button (data-key) auf dem aktuellen Screen, sonst Spiel-Handler (Ziffern etc.)
 document.addEventListener('keydown', e => {
-  if (!keyHandler || e.repeat) return;
-  if (document.querySelector('.modal-back')) return;
+  if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   const tag = e.target?.tagName;
-  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
-  // Leertaste/Enter sollen nicht zusätzlich den fokussierten Button auslösen
-  if ((e.key === ' ' || e.key === 'Enter') && tag === 'BUTTON') e.target.blur();
-  keyHandler(e);
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+    if (e.key === 'Escape') e.target.blur();
+    if (e.key !== 'Enter') return;
+  }
+  const k = keyName(e);
+  const btn = findKeyButton(k);
+  if (btn) {
+    e.preventDefault();
+    if (tag === 'BUTTON') e.target.blur();
+    btn.click();
+    return;
+  }
+  if (document.querySelector('.modal-back')) return;
+  if (['Enter', 'Space', 'Backspace', 'Escape'].includes(k)) { if (k !== 'Enter' && k !== 'Escape') e.preventDefault(); return; }
+  if (tag === 'INPUT') return;
+  keyHandler?.(e);
 });
 
 const appApi = () => ({ show, setKey: fn => { keyHandler = fn; }, home: goHome, startProgram });
@@ -71,6 +85,7 @@ export function goHome() {
     h('div', { class: 'mode-cards' },
       tile('', h('img', { class: 'tile-art', src: 'icons/mascot.webp', alt: '' }), 'TheLeek Trainingsprogramm', 'Festes Programm – läuft automatisch durch.', () => leekPreview()),
       tile('', h('span', { class: 'tile-art svg', html: ICONS.sliders }), 'Individuelles Trainingsprogramm', s.plans.length ? `${s.plans.length} gespeicherte${s.plans.length === 1 ? 'r Plan' : ' Pläne'}` : 'Eigenen Plan bauen und speichern.', () => customFlow(appApi()).start()),
+      tile('', h('span', { class: 'tile-art svg', html: ICONS.learn }), 'Darts lernen', 'Rechnen, Finish-Wege, Caller, Quiz – auch im Duell.', () => learnFlow(appApi()).start()),
       tile('', h('img', { class: 'tile-art thrower', src: 'icons/thrower.webp', alt: '' }), 'Einzeltraining', 'Wenn’s auch mal nur eins sein darf.', () => goSingles()),
       s.versus ? tile('', h('img', { class: 'tile-art duel', src: 'icons/duel.webp', alt: '' }), '1vs1', 'Duell auf einem Gerät.', () => versusFlow(appApi()).start()) : null),
     h('p', { class: 'resume-hint' }, 'Konzentriert aufwärmen – dann ab ins Match. 🎯')));
@@ -81,12 +96,12 @@ function leekPreview() {
   if (!games.length) return toast('Keine Spiele aktiviert – im Admin-Bereich auswählen');
   programPreview(appApi(), {
     title: 'TheLeek Trainingsprogramm', sub: 'Festes Programm · Reihenfolge im Admin änderbar', games,
-    params: { ...store.settings, ...LEEK_PARAMS }, back: goHome,
-    onStart: () => startProgram('leek', games, LEEK_PARAMS, 'TheLeek Trainingsprogramm'),
+    params: { ...store.settings, ...leekParams() }, back: goHome,
+    onStart: () => startProgram('leek', games, leekParams(), 'TheLeek Trainingsprogramm'),
   });
 }
 // Fixe Werte im TheLeek Programm
-const LEEK_PARAMS = { switchMin: 3 };
+const leekParams = () => ({ switchMin: 3, seqHits: store.settings.seqLeekHits, seqBullHits: store.settings.seqLeekBull });
 
 // ---------------- Session ----------------
 function newSession(mode) {
@@ -211,6 +226,14 @@ function goAdmin() {
 
 // ---------------- Start ----------------
 goHome();
+// Einladungs- oder Ergebnislink für ein „Darts lernen“-Duell?
+{
+  const params = new URLSearchParams(location.search);
+  if (params.has('vs')) {
+    history.replaceState(null, '', location.pathname);
+    learnFlow(appApi()).fromLink(params);
+  }
+}
 const splash = document.getElementById('splash');
 // Ablauf: Logo erscheint → Lauch zwinkert → sanft ausblenden → App
 setTimeout(() => splash.classList.add('wink'), 750);

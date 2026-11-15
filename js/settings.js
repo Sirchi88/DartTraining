@@ -9,6 +9,11 @@ export const SETTINGS_SCHEMA = [
   { section: 'Warm-up & 20-Switch', key: 'warmupMin', label: 'Warm-up-Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min']], default: 3 },
   { section: 'Warm-up & 20-Switch', key: 'switchMin', label: '20-Switch-Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min']], default: 3 },
 
+  { section: '20 / 19 / 18 / 17 / Bull', key: 'seqHits', label: 'Treffer 20–17 (Individuell/Einzel)', type: 'number', min: 1, max: 50, step: 1, default: 12 },
+  { section: '20 / 19 / 18 / 17 / Bull', key: 'seqBullHits', label: 'Treffer Bull (Individuell/Einzel)', type: 'number', min: 1, max: 50, step: 1, default: 12 },
+  { section: '20 / 19 / 18 / 17 / Bull', key: 'seqLeekHits', label: 'Treffer 20–17 (TheLeek)', type: 'number', min: 1, max: 50, step: 1, default: 9 },
+  { section: '20 / 19 / 18 / 17 / Bull', key: 'seqLeekBull', label: 'Treffer Bull (TheLeek)', type: 'number', min: 1, max: 50, step: 1, default: 6 },
+
   { section: 'Around the Clock', key: 'atcMode', label: 'Standard-Modus', hint: 'Einfach: selbst zählen · Ausführlich: jeden Dart quittieren', type: 'choice', options: [['simple', 'Einfach'], ['detailed', 'Ausführlich']], default: 'detailed' },
   { section: 'Around the Clock', key: 'atcSingleLimit', label: 'Fehlwurf-Grenze Single', type: 'number', min: 0, max: 200, step: 1, default: 5 },
   { section: 'Around the Clock', key: 'atcDoubleLimit', label: 'Fehlwurf-Grenze Doppel', type: 'number', min: 0, max: 500, step: 1, default: 30 },
@@ -35,13 +40,26 @@ export const SETTINGS_SCHEMA = [
   { section: 'Leek Survival', key: 'svLivesHard', label: 'Leben Hard', type: 'number', min: 1, max: 30, step: 1, default: 5 },
   { section: 'Leek Survival', key: 'svLivesInsane', label: 'Leben Insane', type: 'number', min: 1, max: 30, step: 1, default: 3 },
 
+  { section: 'Höher 41 – Tiefer 26', key: 'hlUpper', label: 'Start-Obergrenze', type: 'number', min: 1, max: 179, step: 1, default: 41 },
+  { section: 'Höher 41 – Tiefer 26', key: 'hlLower', label: 'Start-Untergrenze', type: 'number', min: 1, max: 179, step: 1, default: 26 },
+  { section: 'Höher 41 – Tiefer 26', key: 'hlPlayers', label: 'Standard-Spieleranzahl', type: 'number', min: 2, max: 8, step: 1, default: 2 },
+  { section: 'Höher 41 – Tiefer 26', key: 'hlInput', label: 'Standard-Eingabe', type: 'choice', options: [['darts', '3 Darts'], ['sum', 'Summe']], default: 'sum' },
+
+  { section: 'Darts lernen', key: 'learnDiff', label: 'Standard-Schwierigkeit', hint: 'Zeit pro Aufgabe', type: 'choice', options: [['easy', 'Leicht 7s'], ['medium', 'Mittel 5s'], ['hard', 'Hart 3s'], ['leek', 'TheLeek 2s']], default: 'medium' },
+  { section: 'Darts lernen', key: 'learnRounds', label: 'Standard-Runden', type: 'number', min: 1, max: 50, step: 1, default: 10 },
+  { section: 'Darts lernen', key: 'finishMin', label: 'Finish-Wege: Range von', type: 'number', min: 2, max: 170, step: 1, default: 2 },
+  { section: 'Darts lernen', key: 'finishMax', label: 'Finish-Wege: Range bis', type: 'number', min: 2, max: 170, step: 1, default: 170 },
+  { section: 'Darts lernen', key: 'finishInput', label: 'Standard-Eingabe', type: 'choice', options: [['board', 'Dartboard'], ['keys', 'Feld-Tastatur']], default: 'board' },
+  { section: 'Darts lernen', key: 'callerMs', label: 'Caller: Abstand der Darts', type: 'choice', options: [[300, '0,3s'], [600, '0,6s'], [1000, '1s'], [1500, '1,5s'], [2000, '2s'], [3000, '3s']], default: 1000 },
+  { section: 'Darts lernen', key: 'quizCount', label: 'Quiz: Fragen pro Runde', type: 'number', min: 1, max: 50, step: 1, default: 10 },
+
   { section: '1vs1', key: 'vsChecks', label: 'Random Checkouts: Checks zum Sieg', type: 'number', min: 1, max: 30, step: 1, default: 5 },
 
   { section: 'Bereit fürs Match?', key: 'readyQuote', label: 'Mindest-Checkout-Quote', hint: 'in %', type: 'number', min: 0, max: 100, step: 5, default: 40 },
 ];
 
 // Standard im Leek-Programm (weitere Spiele sind wählbar, aber anfangs aus)
-export const DEFAULT_LEEK_ORDER = ['warmup', 'sequence', 'atcSingle', 'atcDouble', 'switch', 'checkouts'];
+export const DEFAULT_LEEK_ORDER = ['warmup', 'sequence', 'atcSingle', 'switch', 'checkouts'];
 
 export function defaultSettings(gameIds = DEFAULT_LEEK_ORDER) {
   const s = {};
@@ -77,6 +95,12 @@ export function normalizeSettings(raw, knownGameIds) {
     }
   }
   if (s.coMin > s.coMax) [s.coMin, s.coMax] = [s.coMax, s.coMin];
+  if (s.finishMin > s.finishMax) [s.finishMin, s.finishMax] = [s.finishMax, s.finishMin];
+  // Einmalige Umstellung: ATC Doppel nicht mehr im TheLeek-Standardprogramm
+  if (raw && !raw.migr5 && Array.isArray(s.leekOrder)) s.leekOrder = s.leekOrder.map(o => o.id === 'atcDouble' ? { ...o, on: false } : o);
+  s.migr5 = true;
+  if (!Array.isArray(s.hlNames)) s.hlNames = [];
+  if (!Array.isArray(s.quizCats)) s.quizCats = [];
   s.leekOrder = normOrder(s.leekOrder, knownGameIds, () => false);
   s.customOrder = normOrder(s.customOrder, knownGameIds, () => false);
   if (!Array.isArray(s.dblCustom) || !s.dblCustom.length) s.dblCustom = ['D20', 'D10', 'D5'];

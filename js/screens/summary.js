@@ -48,5 +48,5 @@ export function renderSummary(session, { onAddCheckouts, onDone, onHistory }) {
     h('div', { class: 'controls' },
       h('div', { class: 'btn-row' },
         h('button', { class: 'btn ghost', onClick: onHistory }, 'Verlauf'),
-        h('button', { class: 'btn primary', onClick: onDone }, 'Fertig'))));
+        h('button', { 'data-key': 'Enter', class: 'btn primary', onClick: onDone }, 'Fertig'))));
 }

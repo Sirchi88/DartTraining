@@ -47,7 +47,7 @@ function atcGame({ id, v, limitKey }) {
               h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Modus'),
                 segmented([['simple', 'Einfach'], ['detailed', 'Ausführlich']], mode, m => { mode = m; desc.textContent = modeDesc(); })),
               desc)),
-          h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start'))));
+          h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start'))));
         board.highlight(targets.map(t => t.key).slice(0, 20), 'steady');
       }
       const desc = h('p', { class: 'muted small-text', style: { margin: '6px 0 0' } });
@@ -103,8 +103,8 @@ function atcGame({ id, v, limitKey }) {
             h('div', { class: 'controls' },
               h('div', { class: 'btn-row' },
                 h('button', { class: `btn huge ${over ? 'fail' : 'ghost'}`, 'data-snd': 'start', onClick: () => { store.log('atcRuns', { id: uid(), date: Date.now(), game: id, mode, misses, limit, repeated: true }); start(); } }, 'Nochmal'),
-                h('button', { class: `btn huge ${over ? 'ghost' : 'primary'}`, onClick: leave }, 'Weiter')),
-              h('button', { class: 'btn ghost small', onClick: undo }, icon('undo'), 'Letzte Eingabe rückgängig'))));
+                h('button', { 'data-key': 'Enter', class: `btn huge ${over ? 'ghost' : 'primary'}`, onClick: leave }, 'Weiter')),
+              h('button', { 'data-key': 'Backspace', class: 'btn ghost small', onClick: undo }, icon('undo'), 'Letzte Eingabe rückgängig'))));
           return;
         }
 
@@ -117,10 +117,10 @@ function atcGame({ id, v, limitKey }) {
               h('div', { class: `big medium${misses > limit ? ' warn' : ''}` }, misses),
               h('div', { class: 'label' }, `Fehlwürfe · Grenze ${limit}`)),
             h('div', { class: 'controls' },
-              h('button', { class: 'btn huge fail', 'data-snd': 'none', onClick: miss }, 'Fehlwurf'),
+              h('button', { 'data-key': 'Space', class: 'btn huge fail', 'data-snd': 'none', onClick: miss }, 'Fehlwurf'),
               h('div', { class: 'btn-row' },
-                h('button', { class: 'btn ghost', onClick: undo, disabled: !history.length }, icon('undo'), 'Undo'),
-                h('button', { class: 'btn check', 'data-snd': 'none', onClick: hit }, 'Geschafft')))));
+                h('button', { 'data-key': 'Backspace', class: 'btn ghost', onClick: undo, disabled: !history.length }, icon('undo'), 'Undo'),
+                h('button', { 'data-key': 'Enter', class: 'btn check', 'data-snd': 'none', onClick: hit }, 'Geschafft')))));
           return;
         }
 
@@ -135,9 +135,9 @@ function atcGame({ id, v, limitKey }) {
             h('p', { class: 'hint', style: { visibility: t.key === 'BULL' ? 'visible' : 'hidden' } }, 'Bull ', h('strong', {}, 'oder'), ' Bullseye – eins reicht')),
           h('div', { class: 'controls' },
             h('div', { class: 'btn-row' },
-              h('button', { class: 'btn huge fail', 'data-snd': 'none', onClick: miss }, 'Fehlwurf'),
-              h('button', { class: 'btn huge check stacked', 'data-snd': 'none', onClick: hit }, 'Treffer', h('small', { class: 'btn-sub' }, '→ nächstes Feld'))),
-            h('button', { class: 'btn ghost small', onClick: undo, disabled: !history.length }, icon('undo'), 'Undo'))));
+              h('button', { 'data-key': 'Space', class: 'btn huge fail', 'data-snd': 'none', onClick: miss }, 'Fehlwurf'),
+              h('button', { 'data-key': 'Enter', class: 'btn huge check stacked', 'data-snd': 'none', onClick: hit }, 'Treffer', h('small', { class: 'btn-sub' }, '→ nächstes Feld'))),
+            h('button', { 'data-key': 'Backspace', class: 'btn ghost small', onClick: undo, disabled: !history.length }, icon('undo'), 'Undo'))));
       }
 
       ctx.onKey(e => {
