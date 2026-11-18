@@ -100,19 +100,21 @@ export default {
       phase = 'setup';
       const cards = h('div', { class: 'variant-list' });
       const grobBox = h('div', { class: 'card' });
-      const paint = () => {
-        cards.replaceChildren(...Object.entries(VARIANTS_121).map(([k, v]) =>
-          h('button', { class: `variant${k === variant ? ' on' : ''}`, onClick: () => { variant = k; paint(); } },
+      const paint = (scroll = false) => {
+        cards.replaceChildren(...Object.entries(VARIANTS_121).flatMap(([k, v]) => [
+          h('button', { class: `variant${k === variant ? ' on' : ''}`, onClick: () => { variant = k; paint(k === 'grob'); } },
             h('span', { class: 'v-emoji' }, v.emoji),
-            h('span', { class: 'v-txt' }, h('b', {}, v.label), h('span', {}, k === 'grob' ? grobDesc(grobMax) : v.desc)))));
+            h('span', { class: 'v-txt' }, h('b', {}, v.label), h('span', {}, k === 'grob' ? grobDesc(grobMax) : v.desc))),
+          k === 'grob' ? grobBox : null].filter(Boolean)));
         grobBox.hidden = variant !== 'grob';
+        if (scroll) requestAnimationFrame(() => grobBox.scrollIntoView({ behavior: 'smooth', block: 'center' }));
         grobBox.replaceChildren(h('div', { class: 'field' },
           h('div', { class: 'f-label' }, 'GROB Boys: Darts pro Zahl', h('small', {}, grobMax === 12 ? '3 → +3 · 6 → +2 · 9 → +1 · 12 → weiter' : '3 → +2 · 6 → +1 · 9 → weiter')),
-          segmented([[9, '9 Darts'], [12, '12 Darts']], grobMax, v => { grobMax = v; paint(); })));
+          segmented([[9, '9 Darts'], [12, '12 Darts']], grobMax, v => { grobMax = v; store.saveSettings({ ...store.settings, l121GrobDarts: v }); paint(); })));
       };
       paint();
       root.replaceChildren(h('div', { class: 'game' },
-        h('div', { class: 'scroll stack', style: { paddingTop: '6px' } }, h('div', { class: 'label' }, 'Variante wählen'), cards, grobBox),
+        h('div', { class: 'scroll stack', style: { paddingTop: '6px' } }, h('div', { class: 'label' }, 'Variante wählen'), cards),
         h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start bei 121'))));
     }
 

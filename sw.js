@@ -1,5 +1,5 @@
 // Service Worker: alles vorab cachen → App läuft offline.
-const CACHE = 'leek-darttraining-v7';
+const CACHE = 'leek-darttraining-v8';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css',
   'js/app.js', 'js/ui.js', 'js/store.js', 'js/settings.js', 'js/checkouts.js', 'js/chart.js', 'js/wakelock.js',
@@ -23,8 +23,9 @@ self.addEventListener('activate', e => {
 // Netzwerk zuerst (für Updates), bei Offline aus dem Cache.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  const fresh = e.request.mode === 'navigate' ? fetch(e.request.url, { cache: 'no-cache' }) : fetch(e.request, { cache: 'no-cache' });
   e.respondWith(
-    fetch(e.request)
+    fresh
       .then(res => {
         if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
         return res;

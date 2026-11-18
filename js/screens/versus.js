@@ -139,6 +139,7 @@ export function versusFlow(app) {
   function startDuel(duel) {
     if (duel.kind === 'x01') x01Setup(duel);
     else if (duel.kind === 'atc') atcDuel(duel);
+    else if (duel.kind === 'l121' && duel.v === 'grob') grobSetup(duel);
     else if (duel.kind === 'l121') duel121(duel);
     else coDuel(duel);
   }
@@ -199,6 +200,22 @@ export function versusFlow(app) {
     };
     const undo = () => { const s = hist.pop(); if (s) { st = JSON.parse(s); render(); } };
     render();
+  }
+
+  // ---------- GROB Boys: 9 oder 12 Darts ----------
+  function grobSetup(duel) {
+    let max = store.settings.l121GrobDarts ?? 9;
+    const hint = h('small', {});
+    const paintHint = () => { hint.textContent = max === 12 ? '3 Darts +3 · 6 Darts +2 · 9 Darts +1 Leben · 12 Darts nur weiter' : '3 Darts +2 · 6 Darts +1 Leben · 9 Darts nur weiter'; };
+    paintHint();
+    app.show(h('section', { class: 'screen' },
+      h('div', { class: 'topbar' }, iconBtn('back', 'Zurück', choose), h('h2', {}, duel.name, h('span', { class: 'sub' }, `${players[0].name} vs. ${players[1].name}`))),
+      h('div', { class: 'scroll stack', style: { paddingTop: '8px' } },
+        h('div', { class: 'card' }, h('div', { class: 'field col' },
+          h('div', { class: 'f-label' }, 'Darts pro Zahl', hint),
+          segmented([[9, '9 Darts'], [12, '12 Darts']], max, v => { max = v; paintHint(); store.saveSettings({ ...store.settings, l121GrobDarts: v }); })))),
+      h('div', { class: 'controls' }, h('button', { class: 'btn huge primary', 'data-key': 'Enter', 'data-snd': 'start', onClick: () => duel121(duel) }, 'Duell starten'))),
+    { back: choose });
   }
 
   // ---------- 121-Duell ----------
