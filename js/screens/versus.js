@@ -203,7 +203,8 @@ export function versusFlow(app) {
 
   // ---------- 121-Duell ----------
   function duel121(duel) {
-    const games = [create121(duel.v), create121(duel.v)];
+    const grobMax = store.settings.l121GrobDarts ?? 9;
+    const games = [create121(duel.v, { maxDarts: grobMax }), create121(duel.v, { maxDarts: grobMax })];
     let cur = starter, msg = '';
     const hist = [];
     const render = () => {
@@ -217,7 +218,7 @@ export function versusFlow(app) {
           h('div', { class: 'path' }, checkoutPath(g.n)),
           h('div', { class: `flash ${msg ? '' : 'empty'}` }, msg || '\u00a0')),
         h('div', { class: 'controls' },
-          buttons121(duel.v, attempt),
+          buttons121(duel.v, attempt, grobMax),
           h('div', { class: 'btn-row' },
             h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !hist.length, onClick: undo }, icon('undo'), 'Undo'),
             h('button', { class: 'btn ghost small', onClick: end }, 'Fertig')))),

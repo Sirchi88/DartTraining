@@ -720,3 +720,9 @@ textarea.text-input { min-height: 70px; padding: 10px 14px; font-family: var(--t
 .lg-board-sm .ib-wrap { width: min(78vw, 400px, 38vh); }
 .lg-board-sm .ib-wrap { width: min(78vw, 400px, 35vh); }
 .learn-game .num-pad button { min-height: 44px; }
+.grid121.g12 .c121.fail { grid-column: 1 / -1; min-height: 70px; }
+.grid121.g12 .btn.c121 { min-height: 80px; }
+.s121:has(+ .controls .g12) .big.n121 { font-size: clamp(5.5rem, 30vw, 11rem); }
+.s121:has(+ .controls .g12) .path { font-size: clamp(1.8rem, 8vw, 2.8rem); }
+.grid121.g12 .btn.c121 { min-height: 70px; }
+.grid121.g12 .c121.fail { min-height: 58px; flex-direction: row; gap: 8px; }

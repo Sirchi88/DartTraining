@@ -1,5 +1,5 @@
 // 121 – 9 Darts pro Zahl. Varianten: Klassisch, Leek (Einloggen), GROB Boys (Leben).
-import { h, icon, fmtDuration } from '../ui.js';
+import { h, icon, fmtDuration, segmented } from '../ui.js';
 import { sound } from '../sound.js';
 import { checkoutPath, BOGEYS } from '../checkouts.js';
 import { store, uid } from '../store.js';
@@ -11,23 +11,28 @@ export const VARIANTS_121 = {
   grob: { label: 'GROB Boys', emoji: '💚', desc: 'Mit Leben: 3 Darts = +2 Leben, 6 Darts = +1 Leben. Nicht geschafft = −1 Leben, ohne Leben zurück auf 121.' },
 };
 
+// GROB Boys: 9 oder 12 Darts pro Zahl. Leben = übrige Aufnahmen (12 Darts: 3 → +3, 6 → +2, 9 → +1, 12 → 0)
+export const grobLives = (darts, max = 9) => Math.max(0, (max - darts) / 3);
+export const grobDesc = (max = 9) => `Mit Leben, ${max} Darts pro Zahl: ${Array.from({ length: max / 3 - 1 }, (_, i) => `${(i + 1) * 3} Darts = +${grobLives((i + 1) * 3, max)} Leben`).join(', ')}, ${max} Darts = nur weiter. Nicht geschafft = −1 Leben, ohne Leben zurück auf 121.`;
+
 export const next121 = n => { let x = n + 1; while (BOGEYS.has(x)) x++; return x > 170 ? null : x; };
 
 // Reine Spiellogik (auch für 1vs1). darts = 3 | 6 | 9 (gecheckt) oder 0 (nicht gecheckt).
-export function create121(variant) {
-  const st = { variant, n: 121, base: 121, lives: 0, maxLives: 0, highest: 0, checks: 0, attempts: 0, darts: 0, laps: 0, history: [] };
+export function create121(variant, { maxDarts = 9 } = {}) {
+  const max = variant === 'grob' ? maxDarts : 9;
+  const st = { variant, maxDarts: max, n: 121, base: 121, lives: 0, maxLives: 0, highest: 0, checks: 0, attempts: 0, darts: 0, laps: 0, history: [] };
   return {
     st,
     attempt(darts) {
       st.history.push(JSON.stringify({ ...st, history: undefined }));
       st.attempts++;
-      st.darts += darts || 9;
+      st.darts += darts || max;
       const ev = { ok: darts > 0, darts };
       if (darts > 0) {
         st.checks++;
         st.highest = Math.max(st.highest, st.n);
         if (variant === 'leek' && darts === 3 && st.n > st.base) { st.base = st.n; ev.locked = st.n; }
-        if (variant === 'grob') { const g = darts === 3 ? 2 : darts === 6 ? 1 : 0; st.lives += g; ev.lives = g; st.maxLives = Math.max(st.maxLives, st.lives); }
+        if (variant === 'grob') { const g = grobLives(darts, max); st.lives += g; ev.lives = g; st.maxLives = Math.max(st.maxLives, st.lives); }
         const nx = next121(st.n);
         if (nx == null) { st.laps++; st.n = 121; st.base = 121; ev.lap = true; } else st.n = nx;
       } else if (variant === 'grob' && st.lives > 0) {
@@ -48,13 +53,14 @@ export function create121(variant) {
 }
 
 // Die vier Eingabe-Buttons (auch im 1vs1 genutzt)
-export function buttons121(variant, onAttempt) {
-  const sub = d => variant === 'grob' ? (d === 3 ? '+2 Leben' : d === 6 ? '+1 Leben' : 'nur weiter')
+export function buttons121(variant, onAttempt, maxDarts = 9) {
+  const max = variant === 'grob' ? maxDarts : 9;
+  const sub = d => variant === 'grob' ? (grobLives(d, max) ? `+${grobLives(d, max)} Leben` : 'nur weiter')
     : variant === 'leek' ? (d === 3 ? 'Zahl einloggen 🔒' : 'weiter') : 'weiter';
   const okBtn = d => h('button', { 'data-key': String(d / 3), class: 'btn check c121', 'data-snd': 'none', onClick: () => onAttempt(d) },
     h('span', {}, 'Geschafft mit'), h('b', { class: 'dn' }, `${d} Darts`), h('small', { class: 'btn-sub' }, sub(d)));
-  return h('div', { class: 'grid121' },
-    okBtn(3), okBtn(6), okBtn(9),
+  return h('div', { class: `grid121${max === 12 ? ' g12' : ''}` },
+    ...Array.from({ length: max / 3 }, (_, i) => okBtn((i + 1) * 3)),
     h('button', { 'data-key': 'Space', class: 'btn fail c121', 'data-snd': 'none', onClick: () => onAttempt(0) },
       h('b', { class: 'dn' }, 'Nicht'), h('span', {}, 'gecheckt'), h('small', { class: 'btn-sub' }, variant === 'grob' ? '−1 Leben' : 'zurück')));
 }
@@ -76,6 +82,7 @@ export default {
       'Geschafft → nächste Zahl (122, 123 …). Nicht geschafft → zurück.',
       'Leek: Check mit den ersten 3 Darts loggt die Zahl ein – tiefer fällst du nicht mehr.',
       'GROB Boys: 3 Darts = +2 Leben, 6 Darts = +1 Leben. Fehlversuch kostet ein Leben, ohne Leben zurück auf 121.',
+      'GROB Boys mit 12 Darts: 3 Darts = +3, 6 Darts = +2, 9 Darts = +1 Leben, 12 Darts = nur weiter.',
       'Nach jeder Zahl tippst du, mit wie vielen Darts du gecheckt hast. „Fertig“ beendet das Spiel.',
     ],
     steps: [
@@ -86,23 +93,31 @@ export default {
   },
   mount(root, ctx) {
     let variant = ctx.settings.l121Variant;
+    let grobMax = ctx.settings.l121GrobDarts ?? 9;
     let game, startedAt, phase = 'setup', flash = '';
 
     function setup() {
       phase = 'setup';
       const cards = h('div', { class: 'variant-list' });
-      const paint = () => cards.replaceChildren(...Object.entries(VARIANTS_121).map(([k, v]) =>
-        h('button', { class: `variant${k === variant ? ' on' : ''}`, onClick: () => { variant = k; paint(); } },
-          h('span', { class: 'v-emoji' }, v.emoji),
-          h('span', { class: 'v-txt' }, h('b', {}, v.label), h('span', {}, v.desc)))));
+      const grobBox = h('div', { class: 'card' });
+      const paint = () => {
+        cards.replaceChildren(...Object.entries(VARIANTS_121).map(([k, v]) =>
+          h('button', { class: `variant${k === variant ? ' on' : ''}`, onClick: () => { variant = k; paint(); } },
+            h('span', { class: 'v-emoji' }, v.emoji),
+            h('span', { class: 'v-txt' }, h('b', {}, v.label), h('span', {}, k === 'grob' ? grobDesc(grobMax) : v.desc)))));
+        grobBox.hidden = variant !== 'grob';
+        grobBox.replaceChildren(h('div', { class: 'field' },
+          h('div', { class: 'f-label' }, 'GROB Boys: Darts pro Zahl', h('small', {}, grobMax === 12 ? '3 → +3 · 6 → +2 · 9 → +1 · 12 → weiter' : '3 → +2 · 6 → +1 · 9 → weiter')),
+          segmented([[9, '9 Darts'], [12, '12 Darts']], grobMax, v => { grobMax = v; paint(); })));
+      };
       paint();
       root.replaceChildren(h('div', { class: 'game' },
-        h('div', { class: 'scroll stack', style: { paddingTop: '6px' } }, h('div', { class: 'label' }, 'Variante wählen'), cards),
+        h('div', { class: 'scroll stack', style: { paddingTop: '6px' } }, h('div', { class: 'label' }, 'Variante wählen'), cards, grobBox),
         h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start bei 121'))));
     }
 
     function start() {
-      game = create121(variant); startedAt = Date.now(); phase = 'play'; flash = '';
+      game = create121(variant, { maxDarts: grobMax }); startedAt = Date.now(); phase = 'play'; flash = '';
       render();
     }
 
@@ -119,7 +134,7 @@ export default {
       root.replaceChildren(h('div', { class: 'game' },
         h('div', { class: 'stage s121' },
           h('div', { class: 'info121' },
-            h('div', { class: 'i-item' }, h('span', {}, 'Variante'), h('b', {}, VARIANTS_121[variant].label)),
+            h('div', { class: 'i-item' }, h('span', {}, 'Variante'), h('b', {}, VARIANTS_121[variant].label, variant === 'grob' ? ` (${grobMax})` : '')),
             variant === 'grob' ? h('div', { class: 'i-item main' }, h('span', {}, 'Leben'), h('b', {}, lifeHearts(st.lives), h('em', {}, st.lives)))
               : variant === 'leek' ? h('div', { class: 'i-item main' }, h('span', {}, 'Eingeloggt'), h('b', {}, `🔒 ${st.base}`))
               : null,
@@ -129,7 +144,7 @@ export default {
           h('div', { class: 'path' }, checkoutPath(st.n)),
           h('div', { class: `flash ${flash ? '' : 'empty'}` }, flash || ' ')),
         h('div', { class: 'controls' },
-          buttons121(variant, act),
+          buttons121(variant, act, grobMax),
           h('div', { class: 'btn-row' },
             h('button', { 'data-key': 'Backspace', class: 'btn ghost small', disabled: !st.history.length, onClick: () => { game.undo(); flash = ''; render(); } }, icon('undo'), 'Undo'),
             h('button', { class: 'btn ghost small', onClick: finish }, 'Fertig')))));
@@ -139,7 +154,7 @@ export default {
       phase = 'result';
       const st = game.st;
       const prevBest = Math.max(0, ...store.list('l121Runs').filter(r => r.variant === variant).map(r => r.highest || 0));
-      const run = { id: uid(), date: Date.now(), variant, highest: st.highest, checks: st.checks, attempts: st.attempts, darts: st.darts, maxLives: st.maxLives, durationMs: Date.now() - startedAt };
+      const run = { id: uid(), date: Date.now(), variant, grobDarts: variant === 'grob' ? grobMax : null, highest: st.highest, checks: st.checks, attempts: st.attempts, darts: st.darts, maxLives: st.maxLives, durationMs: Date.now() - startedAt };
       if (st.attempts) store.log('l121Runs', run);
       const record = st.highest > prevBest && st.highest > 0;
       sound.play(record ? 'record' : 'finish');

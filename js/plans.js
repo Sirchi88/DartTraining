@@ -28,7 +28,10 @@ export const PLAN_PARAMS = {
     { key: 'dblMinutes', label: 'Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min'], [7, '7 Min']], when: p => p.dblMode === 'time' },
     { key: 'dblHits', label: 'Treffer-Ziel', type: 'number', min: 1, max: 200, when: p => p.dblMode === 'hits' },
   ],
-  l121: [{ key: 'l121Variant', label: 'Variante', type: 'choice', options: [['classic', 'Klassisch'], ['leek', 'Leek'], ['grob', 'GROB Boys']] }],
+  l121: [
+    { key: 'l121Variant', label: 'Variante', type: 'choice', options: [['classic', 'Klassisch'], ['leek', 'Leek'], ['grob', 'GROB Boys']] },
+    { key: 'l121GrobDarts', label: 'GROB Boys: Darts', type: 'choice', options: [[9, '9 Darts'], [12, '12 Darts']], when: p => p.l121Variant === 'grob' },
+  ],
   drill: [{ key: 'drillMin', label: 'Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min'], [7, '7 Min']] }],
   survival: [{ key: 'svDifficulty', label: 'Stufe', type: 'choice', options: [['easy', 'Easy'], ['normal', 'Normal'], ['hard', 'Hard'], ['insane', 'Insane']] }],
 };

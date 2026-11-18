@@ -30,6 +30,7 @@ export const SETTINGS_SCHEMA = [
   { section: 'Ich liebe meine Doppel', key: 'dblMinutes', label: 'Dauer', type: 'choice', options: [[3, '3'], [5, '5'], [7, '7 Min']], default: 5 },
   { section: 'Ich liebe meine Doppel', key: 'dblHits', label: 'Treffer-Ziel', type: 'number', min: 1, max: 200, step: 1, default: 20 },
 
+  { section: '121', key: 'l121GrobDarts', label: 'GROB Boys: Darts pro Zahl', hint: '12 Darts: 3 → +3, 6 → +2, 9 → +1 Leben', type: 'choice', options: [[9, '9 Darts'], [12, '12 Darts']], default: 9 },
   { section: '121', key: 'l121Variant', label: 'Standard-Variante', type: 'choice', options: [['classic', 'Klassisch'], ['leek', 'Leek'], ['grob', 'GROB Boys']], default: 'classic' },
 
   { section: 'Dran bleiben Junge', key: 'drillMin', label: 'Dauer', type: 'choice', options: [[3, '3'], [5, '5'], [7, '7 Min']], default: 5 },
