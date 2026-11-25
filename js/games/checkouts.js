@@ -55,7 +55,7 @@ export default {
               ? h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Dauer', h('small', {}, 'Minuten')),
                   stepper(minutes, { min: 1, max: 120 }, v => { minutes = v; }))
               : h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Checks benötigt', h('small', {}, 'Nur geschaffte Checkouts zählen')),
-                  stepper(count, { min: 1, max: 100 }, v => { count = v; })),
+                  segmented([[5, '5'], [10, '10'], [15, '15'], [20, '20']], count, v => { count = v; })),
             h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Checkout-Weg anzeigen', h('small', {}, 'z. B. 81 = T19 D12')),
               toggleSwitch(showPath, v => { showPath = v; }, 'Checkout-Weg anzeigen'))),
           h('p', { class: 'muted small-text', style: { textAlign: 'center', margin: '4px 0' } },

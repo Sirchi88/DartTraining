@@ -1,5 +1,5 @@
 // Service Worker: alles vorab cachen → App läuft offline.
-const CACHE = 'leek-darttraining-v8';
+const CACHE = 'leek-darttraining-v9';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css',
   'js/app.js', 'js/ui.js', 'js/store.js', 'js/settings.js', 'js/checkouts.js', 'js/chart.js', 'js/wakelock.js',

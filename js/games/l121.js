@@ -58,7 +58,7 @@ export function buttons121(variant, onAttempt, maxDarts = 9) {
   const sub = d => variant === 'grob' ? (grobLives(d, max) ? `+${grobLives(d, max)} Leben` : 'nur weiter')
     : variant === 'leek' ? (d === 3 ? 'Zahl einloggen 🔒' : 'weiter') : 'weiter';
   const okBtn = d => h('button', { 'data-key': String(d / 3), class: 'btn check c121', 'data-snd': 'none', onClick: () => onAttempt(d) },
-    h('span', {}, 'Geschafft mit'), h('b', { class: 'dn' }, `${d} Darts`), h('small', { class: 'btn-sub' }, sub(d)));
+    h('span', { class: 'dn-row' }, h('span', { class: 'dn-in' }, 'in'), h('b', { class: 'dn' }, d), h('span', { class: 'dn-in' }, 'Darts')), h('small', { class: 'btn-sub' }, sub(d)));
   return h('div', { class: `grid121${max === 12 ? ' g12' : ''}` },
     ...Array.from({ length: max / 3 }, (_, i) => okBtn((i + 1) * 3)),
     h('button', { 'data-key': 'Space', class: 'btn fail c121', 'data-snd': 'none', onClick: () => onAttempt(0) },
@@ -136,11 +136,11 @@ export default {
       root.replaceChildren(h('div', { class: 'game' },
         h('div', { class: 'stage s121' },
           h('div', { class: 'info121' },
-            h('div', { class: 'i-item' }, h('span', {}, 'Variante'), h('b', {}, VARIANTS_121[variant].label, variant === 'grob' ? ` (${grobMax})` : '')),
+            h('div', { class: 'i-item small' }, h('span', {}, 'Variante'), h('b', {}, VARIANTS_121[variant].label, variant === 'grob' ? ` (${grobMax})` : '')),
             variant === 'grob' ? h('div', { class: 'i-item main' }, h('span', {}, 'Leben'), h('b', {}, lifeHearts(st.lives), h('em', {}, st.lives)))
               : variant === 'leek' ? h('div', { class: 'i-item main' }, h('span', {}, 'Eingeloggt'), h('b', {}, `🔒 ${st.base}`))
               : null,
-            h('div', { class: 'i-item' }, h('span', {}, 'Bestes'), h('b', {}, st.highest || '–'))),
+            h('div', { class: 'i-item small' }, h('span', {}, 'Bestes'), h('b', {}, st.highest || '–'))),
           h('div', { class: 'label' }, 'Checke'),
           h('div', { class: 'big n121' }, st.n),
           h('div', { class: 'path' }, checkoutPath(st.n)),

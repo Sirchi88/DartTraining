@@ -2,7 +2,7 @@
 import { h, Countdown, fmtClock, segmented } from '../ui.js';
 import { sound } from '../sound.js';
 
-export function timedGame({ id, name, short, settingKey, title, renderHint, info }) {
+export function timedGame({ id, name, short, settingKey, title, renderHint, info, options = [3, 5] }) {
   return {
     id, name, short, info, tracked: false,
     mount(root, ctx) {
@@ -12,7 +12,7 @@ export function timedGame({ id, name, short, settingKey, title, renderHint, info
 
       const clock = h('div', { class: 'big timer' }, fmtClock(minutes * 60000));
       const status = h('div', { class: 'label' }, title);
-      const chooser = h('div', { class: 'chooser' }, segmented([[3, '3 Min'], [5, '5 Min']], minutes, v => {
+      const chooser = h('div', { class: 'chooser' }, segmented(options.map(m => [m, `${m} Min`]), minutes, v => {
         minutes = v; timer = makeTimer(); clock.textContent = fmtClock(minutes * 60000);
       }));
       const mainBtn = h('button', { 'data-key': 'Enter Escape', class: 'btn huge primary', 'data-snd': 'none', onClick: () => main() }, 'Start');

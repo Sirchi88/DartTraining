@@ -6,15 +6,15 @@ export const SETTINGS_SCHEMA = [
   { section: 'Allgemein', key: 'badgePopups', label: 'Abzeichen-Pop-ups', hint: 'Einblendung beim Freischalten (Abzeichen werden immer gesammelt)', type: 'toggle', default: true },
   { section: 'Allgemein', key: 'streakHome', label: 'Trainings-Serie auf der Startseite', type: 'toggle', default: true },
 
-  { section: 'Warm-up & 20-Switch', key: 'warmupMin', label: 'Warm-up-Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min']], default: 3 },
-  { section: 'Warm-up & 20-Switch', key: 'switchMin', label: '20-Switch-Dauer', type: 'choice', options: [[3, '3 Min'], [5, '5 Min']], default: 3 },
+  { section: 'Warm-up & 20-Switch', key: 'warmupMin', label: 'Warm-up-Dauer', hint: 'Im TheLeek Programm immer 3 Min', type: 'choice', options: [[1, '1 Min'], [2, '2 Min'], [3, '3 Min'], [4, '4 Min']], default: 3 },
+  { section: 'Warm-up & 20-Switch', key: 'switchMin', label: '20-Switch-Dauer', hint: 'Im TheLeek Programm immer 2 Min', type: 'choice', options: [[1, '1 Min'], [2, '2 Min'], [3, '3 Min'], [4, '4 Min'], [5, '5 Min']], default: 3 },
 
   { section: '20 / 19 / 18 / 17 / Bull', key: 'seqHits', label: 'Treffer 20–17 (Individuell/Einzel)', type: 'number', min: 1, max: 50, step: 1, default: 12 },
   { section: '20 / 19 / 18 / 17 / Bull', key: 'seqBullHits', label: 'Treffer Bull (Individuell/Einzel)', type: 'number', min: 1, max: 50, step: 1, default: 12 },
   { section: '20 / 19 / 18 / 17 / Bull', key: 'seqLeekHits', label: 'Treffer 20–17 (TheLeek)', type: 'number', min: 1, max: 50, step: 1, default: 9 },
   { section: '20 / 19 / 18 / 17 / Bull', key: 'seqLeekBull', label: 'Treffer Bull (TheLeek)', type: 'number', min: 1, max: 50, step: 1, default: 6 },
 
-  { section: 'Around the Clock', key: 'atcMode', label: 'Standard-Modus', hint: 'Einfach: selbst zählen · Ausführlich: jeden Dart quittieren', type: 'choice', options: [['simple', 'Einfach'], ['detailed', 'Ausführlich']], default: 'detailed' },
+  { section: 'Around the Clock', key: 'atcMode', label: 'Standard-Modus', hint: 'Aus dem Kopf: selbst zählen · Zum Mitklicken: jeden Dart quittieren', type: 'choice', options: [['simple', 'Aus dem Kopf'], ['detailed', 'Zum Mitklicken']], default: 'detailed' },
   { section: 'Around the Clock', key: 'atcSingleLimit', label: 'Fehlwurf-Grenze Single', type: 'number', min: 0, max: 200, step: 1, default: 5 },
   { section: 'Around the Clock', key: 'atcDoubleLimit', label: 'Fehlwurf-Grenze Doppel', type: 'number', min: 0, max: 500, step: 1, default: 30 },
   { section: 'Around the Clock', key: 'atcTripleLimit', label: 'Fehlwurf-Grenze Triple', type: 'number', min: 0, max: 500, step: 1, default: 30 },
@@ -22,7 +22,7 @@ export const SETTINGS_SCHEMA = [
   { section: 'Random Checkouts', key: 'coMin', label: 'Range von', hint: 'Empfohlen: 20', type: 'number', min: 2, max: 170, step: 1, default: 20 },
   { section: 'Random Checkouts', key: 'coMax', label: 'Range bis', hint: 'Empfohlen: 90', type: 'number', min: 2, max: 170, step: 1, default: 90 },
   { section: 'Random Checkouts', key: 'coMode', label: 'Standardmodus', type: 'choice', options: [['count', 'Checks'], ['time', 'Zeit']], default: 'count' },
-  { section: 'Random Checkouts', key: 'coCount', label: 'Checks benötigt', hint: 'Nur geschaffte Checkouts zählen', type: 'number', min: 1, max: 100, step: 1, default: 15 },
+  { section: 'Random Checkouts', key: 'coCount', label: 'Checks benötigt', hint: 'Nur geschaffte Checkouts zählen · TheLeek: 10', type: 'choice', options: [[5, '5'], [10, '10'], [15, '15'], [20, '20']], default: 15 },
   { section: 'Random Checkouts', key: 'coMinutes', label: 'Standard-Zeit', hint: 'Minuten', type: 'number', min: 1, max: 120, step: 1, default: 5 },
   { section: 'Random Checkouts', key: 'coShowPath', label: 'Checkout-Weg anzeigen', type: 'toggle', default: true },
 

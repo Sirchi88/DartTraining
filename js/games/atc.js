@@ -1,4 +1,4 @@
-// Around the Clock (Single/Doppel/Triple) – Modus „Einfach“ (selbst zählen) oder „Ausführlich“ (jeden Dart quittieren).
+// Around the Clock (Single/Doppel/Triple) – Modus „Aus dem Kopf“ (selbst zählen) oder „Zum Mitklicken“ (jeden Dart quittieren).
 import { h, icon, segmented } from '../ui.js';
 import { sound } from '../sound.js';
 import { createBoard } from '../board.js';
@@ -23,8 +23,8 @@ function atcGame({ id, v, limitKey }) {
       lines: [
         `Alle Felder von ${V.show(1)} bis ${V.show(20)} der Reihe nach treffen, zum Schluss Bull oder Bullseye.`,
         'Gezählt werden nur die Fehlwürfe (jeder Dart, der das Zielfeld verfehlt).',
-        'Einfach: Du zählst selbst und tippst nur „Fehlwurf“ und am Ende „Geschafft“.',
-        'Ausführlich: Das Zielfeld blinkt, du quittierst jeden Dart.',
+        'Aus dem Kopf: Du zählst selbst und tippst nur „Fehlwurf“ und am Ende „Geschafft“.',
+        'Zum Mitklicken: Das Zielfeld blinkt, du quittierst jeden Dart.',
       ],
       steps: [
         { hl: [`${V.prefix}1`], cap: `Start: ${V.show(1)}`, darts: [[`${V.prefix}1`, true]] },
@@ -40,12 +40,12 @@ function atcGame({ id, v, limitKey }) {
       const board = createBoard();
 
       function setup() {
-        root.replaceChildren(h('div', { class: 'game' },
+        root.replaceChildren(h('div', { class: 'game atc-game' },
           h('div', { class: 'stage' },
             h('div', { class: 'board-wrap' }, board.el),
             h('div', { class: 'card setup-card' },
               h('div', { class: 'field' }, h('div', { class: 'f-label' }, 'Modus'),
-                segmented([['simple', 'Einfach'], ['detailed', 'Ausführlich']], mode, m => { mode = m; desc.textContent = modeDesc(); })),
+                segmented([['simple', 'Aus dem Kopf'], ['detailed', 'Zum Mitklicken']], mode, m => { mode = m; desc.textContent = modeDesc(); })),
               desc)),
           h('div', { class: 'controls' }, h('button', { 'data-key': 'Enter', class: 'btn huge primary', 'data-snd': 'start', onClick: start }, 'Start'))));
         board.highlight(targets.map(t => t.key).slice(0, 20), 'steady');
@@ -93,7 +93,7 @@ function atcGame({ id, v, limitKey }) {
         root.replaceChildren();
         if (done()) {
           const over = misses > limit;
-          root.append(h('div', { class: 'game' },
+          root.append(h('div', { class: 'game atc-game' },
             h('div', { class: 'stage' },
               h('div', { class: 'label' }, `${name} – geschafft`),
               h('div', { class: `big${over ? '' : ' leek'}` }, misses),
@@ -110,7 +110,7 @@ function atcGame({ id, v, limitKey }) {
 
         if (mode === 'simple') {
           board.highlight(targets.map(t => t.key), 'steady');
-          root.append(h('div', { class: 'game' },
+          root.append(h('div', { class: 'game atc-game' },
             h('div', { class: 'stage' },
               h('div', { class: 'board-wrap small' }, board.el),
               h('div', { class: 'label' }, `${V.show(1)} → ${V.show(20)} → Bull · selbst zählen`),
@@ -126,7 +126,7 @@ function atcGame({ id, v, limitKey }) {
 
         const t = targets[idx];
         board.highlight([t.key], 'blink');
-        root.append(h('div', { class: 'game' },
+        root.append(h('div', { class: 'game atc-game' },
           h('div', { class: 'stage' },
             h('div', { class: 'atc-head' },
               h('div', {}, h('div', { class: 'label' }, `Feld ${idx + 1}/${targets.length}`), h('div', { class: 'big medium' }, t.label)),

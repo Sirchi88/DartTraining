@@ -45,6 +45,7 @@ window.addEventListener('popstate', () => {
 // Tastenkürzel: zuerst passender Button (data-key) auf dem aktuellen Screen, sonst Spiel-Handler (Ziffern etc.)
 document.addEventListener('keydown', e => {
   if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (document.querySelector('.leek-intro')) { e.preventDefault(); return; }
   const tag = e.target?.tagName;
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
     if (e.key === 'Escape') e.target.blur();
@@ -101,7 +102,7 @@ function leekPreview() {
   });
 }
 // Fixe Werte im TheLeek Programm
-const leekParams = () => ({ switchMin: 3, seqHits: store.settings.seqLeekHits, seqBullHits: store.settings.seqLeekBull });
+const leekParams = () => ({ warmupMin: 3, switchMin: 2, coMode: 'count', coCount: 10, seqHits: store.settings.seqLeekHits, seqBullHits: store.settings.seqLeekBull });
 
 // ---------------- Session ----------------
 function newSession(mode) {
@@ -198,10 +199,34 @@ function runGame(gameId, { autoStart = false, returnTo = null } = {}) {
       }
       session.pos++;
       if (session.pos < session.queue.length) runGame(session.queue[session.pos]);
-      else { session.complete = true; sound.play('finish'); goSummary(); }
+      else { session.complete = true; if (session.mode === 'leek') leekFinished(() => goSummary()); else { sound.play('finish'); goSummary(); } }
     },
   };
   cleanup = game.mount(root, ctx) || null;
+  if (session.mode === 'leek' && !returnTo) leekIntro(game, session.pos, session.queue.length);
+}
+
+// ---------------- TheLeek: Intro vor jedem Spiel + Finished ----------------
+function leekIntro(game, pos, total) {
+  const el = h('div', { class: 'leek-intro', 'aria-live': 'polite' },
+    h('div', { class: 'li-label' }, `TheLeek Trainingsprogramm · ${pos + 1}/${total}`),
+    h('div', { class: 'li-glyph' }, game.glyph || '🎯'),
+    h('div', { class: 'li-name' }, game.name),
+    h('div', { class: 'li-dots' }, Array.from({ length: total }, (_, i) => h('span', { class: i < pos ? 'done' : i === pos ? 'cur' : '' }))));
+  document.body.append(el);
+  sound.play('start');
+  setTimeout(() => el.classList.add('out'), 1250);
+  setTimeout(() => el.remove(), 1600);
+}
+function leekFinished(next) {
+  const el = h('div', { class: 'leek-intro finished' },
+    h('img', { class: 'li-logo', src: 'icons/logo-wink.webp', alt: '' }),
+    h('div', { class: 'li-name' }, 'Finished!'),
+    h('div', { class: 'li-label' }, 'TheLeek Trainingsprogramm geschafft'));
+  document.body.append(el);
+  sound.play('record');
+  setTimeout(() => el.classList.add('out'), 1300);
+  setTimeout(() => { el.remove(); next(); }, 1650);
 }
 
 function goSummary() {

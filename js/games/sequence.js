@@ -52,7 +52,8 @@ export default {
           h('button', { 'data-key': 'Backspace', class: 'btn ghost small', style: { visibility: i > 0 ? 'visible' : 'hidden' }, onClick: () => { i--; render(); } }, 'Zurück'))));
     };
     const advance = () => {
-      sound.play(i === STATIONS.length - 1 ? 'finish' : 'hit');
+      if (i === STATIONS.length - 1) { sound.play('finish'); return ctx.finish({ completed: true }); }
+      sound.play('hit');
       i++; render();
     };
     ctx.onKey(e => {
